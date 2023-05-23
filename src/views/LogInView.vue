@@ -1,13 +1,12 @@
 <template>
-    <div class="">
-        <h1>Sign in</h1>
-        <login-component></login-component>
-    </div>
+    <form-base formTitle="LOGGA IN">
+        <form-login></form-login>
+    </form-base>
 </template>
 
 <script setup>
-import LoginComponent from "../components/auth/SuperTokensLogin.vue"
-
+import FormBase from "../components/auth/FormBase.vue";
+import FormLogin from "../components/auth/FormLogin.vue"
 
 
 </script>

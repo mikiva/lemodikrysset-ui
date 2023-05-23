@@ -1,15 +1,14 @@
 <template>
-    <h1>Register account</h1>
-    <p><input type="text" v-model="email"></p>
-    <p><input type="password" v-model="password"></p>
-    <p><button @click="register">Submit</button></p>
-    <p><button @click="signIntWithGoogle">Sign in with google</button></p>
-    <div id="authapp"></div>
+    <form-base formTitle="REGISTRERA">
+        <form-register></form-register>
+    </form-base>
 </template>
 
 <script setup>
 import { ref } from "vue";
 import { useRouter } from "vue-router";
+import FormBase from "../components/auth/FormBase.vue";
+import FormRegister from "../components/auth/FormRegister.vue";
 const router = useRouter();
 const email = ref("");
 const password = ref("");

@@ -32,7 +32,6 @@ const router = createRouter({
           next("/");
         } else {
           const res = await Session.attemptRefreshingSession();
-          console.log(res);
           next();
         }
       }
