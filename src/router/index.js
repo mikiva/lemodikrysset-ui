@@ -3,7 +3,9 @@ import HomeView from "../views/HomeView.vue";
 import LogInView from "../views/LogInView.vue";
 import RegisterView from "../views/RegisterView.vue";
 import PlayView from "../views/PlayView.vue";
-import Session from "supertokens-web-js/recipe/session"
+import Session from "supertokens-web-js/recipe/session";
+import ProfileView from "../views/ProfileView.vue";
+
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
@@ -11,6 +13,12 @@ const router = createRouter({
       path: "/",
       name: "home",
       component: HomeView,
+    },
+    {
+      path: "/profile",
+      name: "profile",
+      component: ProfileView,
+      beforeEnter: enterIfLoggedIn,
     },
     {
       path: "/lemodi",
@@ -21,25 +29,18 @@ const router = createRouter({
       path: "/register",
       name: "register",
       component: RegisterView,
+      beforeEnter: leaveIfLoggedIn,
     },
     {
       path: "/login",
       name: "login",
       component: LogInView,
-      beforeEnter: async (to, from, next) => {
-        if (await Session.doesSessionExist()) {
-          console.log("session exists");
-          next("/");
-        } else {
-          const res = await Session.attemptRefreshingSession();
-          next();
-        }
-      }
+      beforeEnter: leaveIfLoggedIn,
     },
     {
       name: "logout",
       path: "/logout",
-      beforeEnter: async (to, from, next) => {
+      beforeEnter: async () => {
         if (await Session.doesSessionExist()) {
           await Session.signOut();
         }
@@ -56,5 +57,27 @@ const router = createRouter({
     },
   ],
 });
+
+async function enterIfLoggedIn(to, from, next) {
+  if (
+    (await Session.doesSessionExist()) ||
+    (await Session.attemptRefreshingSession())
+  ) {
+    next();
+  } else {
+    next("/");
+  }
+}
+
+async function leaveIfLoggedIn(to, from, next) {
+  if (
+    (await Session.doesSessionExist()) ||
+    (await Session.attemptRefreshingSession())
+  ) {
+    next("/");
+  } else {
+    next();
+  }
+}
 
 export default router;
