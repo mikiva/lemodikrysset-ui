@@ -1,7 +1,7 @@
 <template>
   <div class="h-full">
     <TopNav>
-      <main class="h-[calc(100%-3rem)] relative">
+      <main class="md:h-[calc(100%-5rem)] h-[calc(100%-3rem)] relative py-2">
         <RouterView />
       </main>
     </TopNav>
@@ -10,19 +10,26 @@
 
 <script setup>
 import { ref, onMounted, provide, onBeforeMount } from "vue";
-import { RouterLink, RouterView, useRouter } from "vue-router";
+import { RouterView, useRouter } from "vue-router";
 import TopNav from "./components/TopNav.vue";
 import Session from "supertokens-web-js/recipe/session";
+import { currentScreenSymbol, isLoggedInSymbol } from "@/injectionSymbols";
 
-const router = useRouter();
+const currentScreenWidth = ref(null);
 const isLoggedIn = ref(false);
 
 onBeforeMount(async () => {
   if (await Session.doesSessionExist()) isLoggedIn.value = true;
 });
 
-//a2fa326d-838f-46ee-9edd-b6e5cf17fc2d
-provide("isLoggedIn", isLoggedIn);
+onMounted(() => {
+  window.addEventListener("resize", () => {
+    currentScreenWidth.value = screen.width;
+  });
+});
+
+provide(isLoggedInSymbol, isLoggedIn);
+provide(currentScreenSymbol, currentScreenWidth);
 </script>
 
 <style scoped></style>

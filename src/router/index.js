@@ -2,7 +2,6 @@ import { createRouter, createWebHistory } from "vue-router";
 import HomeView from "../views/HomeView.vue";
 import LogInView from "../views/LogInView.vue";
 import RegisterView from "../views/RegisterView.vue";
-import PlayView from "../views/PlayView.vue";
 import Session from "supertokens-web-js/recipe/session";
 import ProfileView from "../views/ProfileView.vue";
 
@@ -21,9 +20,14 @@ const router = createRouter({
       beforeEnter: enterIfLoggedIn,
     },
     {
-      path: "/lemodi",
-      name: "lemodi",
-      component: PlayView,
+      path: "/play/:puzzleid",
+      name: "puzzle",
+      component: () => import("../views/PlayView.vue"),
+    },
+    {
+      path: "/play",
+      name: "play",
+      component: () => import("../views/PlayView.vue"),
     },
     {
       path: "/register",

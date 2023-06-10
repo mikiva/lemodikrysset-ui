@@ -1,3 +1,4 @@
+@import "@fontsource/open-sans";
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -9,4 +10,12 @@ html,
     @apply h-full w-full;
     
     
+}
+
+* {
+    box-sizing: border-box;
+}
+
+.material-icons {
+    font-size: unset;
 }
