@@ -12,12 +12,18 @@
       v-for="key in 'asdfghjklöä'"
       class="col-span-2"
     ></KeyboardKey>
-    <KeyboardKey inputKey="ROTERA" class="col-span-4"></KeyboardKey>
+    <KeyboardKey key-value=" " class="col-span-4">
+      <span class="material-icons-outlined">height</span>
+      <span class="material-icons-outlined rotate-90">height</span>
+    </KeyboardKey>
     <KeyboardKey
       :inputKey="key"
       v-for="key in 'zxcvbnm'"
       class="col-span-2"
     ></KeyboardKey>
+    <KeyboardKey key-value="backspace" inputKey="" class="col-span-4"
+      ><span class="material-icons-outlined">backspace</span></KeyboardKey
+    >
   </div>
 </template>
 

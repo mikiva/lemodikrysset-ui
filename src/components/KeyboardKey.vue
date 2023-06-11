@@ -4,6 +4,7 @@
     @click="keyPressed"
   >
     {{ inputKey }}
+    <slot></slot>
   </button>
 </template>
 
@@ -11,12 +12,17 @@
 import { toRefs } from "vue";
 const props = defineProps({
   inputKey: String,
+  keyValue: String,
 });
 
-const { inputKey } = toRefs(props);
+const { inputKey, keyValue } = toRefs(props);
 
 function keyPressed() {
-  window.dispatchEvent(new KeyboardEvent("keydown", { key: inputKey.value }));
+  window.dispatchEvent(
+    new KeyboardEvent("keydown", {
+      key: keyValue.value ? keyValue.value : inputKey.value,
+    })
+  );
 }
 </script>
 

@@ -12,6 +12,7 @@ module.exports = {
       },
       fontFamily: {
         sans: ["Open Sans", ...defaultTheme.fontFamily.sans],
+        mono: ["Source Code Pro", ...defaultTheme.fontFamily.mono],
       },
       gridTemplateColumns: {
         keyboard: "repeat(22, minmax(0, 1fr))",
@@ -22,6 +23,18 @@ module.exports = {
       },
       backgroundColor: {
         inactive: "black",
+      },
+      keyframes: {
+        pop: {
+          "0%": { scale: "0.8", opacity: "0" },
+          "40%": { scale: "1.15", opacity: "1" },
+        },
+      },
+      animation: {
+        pop: "pop 0.1s",
+      },
+      transitionProperty: {
+        cell: "background-color",
       },
     },
   },

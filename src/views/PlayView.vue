@@ -36,13 +36,18 @@ onMounted(async () => {
   );
 
   const puzzle = await response.json();
+
   pdata.puzzle = puzzle;
+  console.log("mount listener");
+
   window.addEventListener("keydown", handleKeyPress);
 });
 function handleKeyPress(key) {
   const k = key.key.toLowerCase();
-  if (k.match(/^[a-zåäö]$/)) {
-    console.log(k);
+  console.log(key);
+  if (
+    k.match(/^([a-zåäö]|arrowup|arrowdown|arrowleft|arrowright|\s|backspace)$/)
+  ) {
     observers.forEach((notify) => {
       notify(k);
     });
@@ -51,7 +56,10 @@ function handleKeyPress(key) {
 
 provide(playPuzzleSymbol, pdata);
 provide("observers", observers);
-onBeforeUnmount(() => window.removeEventListener("keydown", handleKeyPress));
+onBeforeUnmount(() => {
+  console.log("unmount listener");
+  window.removeEventListener("keydown", handleKeyPress);
+});
 </script>
 
 <style scoped></style>

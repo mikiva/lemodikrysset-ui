@@ -1,7 +1,7 @@
 <template>
   <div
-    class="w-full h-full z-0 bg-white border-gray-800 grow relative"
-    :class="{ 'bg-gray-800': cell.state === '0' }"
+    class="w-full h-full z-0 border-gray-800 grow relative transition-cell duration-100"
+    :class="{ 'bg-gray-800': cell.state === 0 }"
     :style="cellStyle"
     ref="cellRef"
   >
@@ -11,12 +11,11 @@
     <WordDivider v-if="cell.state > 1" :state="cell.state"></WordDivider>
     <CellArrow v-if="cell.arrow" :direction="cell.arrow"></CellArrow>
     <div
-      class="flex justify-center items-center relative"
-      :class="letterClass"
-      v-if="letter"
+      class="flex h-full items-center relative w-full font-mono animate-pop"
+      v-if="cell.letter"
     >
-      <span>
-        {{ letter }}
+      <span class="block m-auto md:text-4xl text-3xl">
+        {{ cell.letter }}
       </span>
     </div>
   </div>
@@ -36,20 +35,13 @@ const currentScreen = inject(currentScreenSymbol, 0);
 const cellRef = ref(null);
 onMounted(setCellSize);
 const cellStyle = computed(() => {
-  if (cell.value.state !== "1") {
+  if (cell.value.state !== 1) {
     return {
       pointerEvents: "none",
     };
   }
   return {
-    fontSize: "2em",
     textTransform: "uppercase",
-  };
-});
-
-const letterClass = computed(() => {
-  return {
-    "md:text-4xl text-3xl md:top-[8%]": letter.value,
   };
 });
 
