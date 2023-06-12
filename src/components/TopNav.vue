@@ -1,5 +1,5 @@
 <template>
-  <div class="box-border outline outline-1 outline-gray-400/50">
+  <div class="box-border outline outline-1 outline-blue-600/50">
     <nav
       class="md:h-[5rem] h-[3rem] flex items-center justify-between max-w-appWidth w-full px-2 m-auto"
     >

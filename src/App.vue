@@ -1,7 +1,9 @@
 <template>
   <div class="h-full">
     <TopNav>
-      <main class="md:h-[calc(100%-5rem)] h-[calc(100%-3rem)] relative py-2">
+      <main
+        class="m-auto md:h-[calc(100%-5rem)] h-[calc(100%-3rem)] relative py-2 max-w-appWidth"
+      >
         <RouterView />
       </main>
     </TopNav>

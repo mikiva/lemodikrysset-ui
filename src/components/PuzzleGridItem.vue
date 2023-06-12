@@ -14,7 +14,9 @@
       class="flex h-full items-center relative w-full font-mono animate-pop"
       v-if="cell.letter"
     >
-      <span class="block m-auto md:text-4xl text-3xl">
+      <span
+        class="block m-auto boardmd:text-4xl boardsm:text-3xl text-2xl leading-none"
+      >
         {{ cell.letter }}
       </span>
     </div>

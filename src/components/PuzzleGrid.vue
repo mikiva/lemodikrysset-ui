@@ -1,7 +1,7 @@
 <template>
   <div>
     <div
-      class="grid grid-rows-9 grid-cols-10 border-gray-800 box-border border-r border-b mx-auto max-w-[499px] max-h-[449px] w-full"
+      class="grid grid-rows-9 grid-cols-10 mx-auto border-gray-800 box-border border-r border-b max-w-[499px] max-h-[449px] w-full"
     >
       <div v-for="([x, y, data], idx) in grid.grid" :key="idx">
         <puzzle-grid-item
@@ -13,7 +13,6 @@
             selected === `${x}-${y}` ? 'bg-gray-400' : '',
           ]"
           :cell="data"
-          :letter="grid.letters[`${x}-${y}`]"
         >
         </puzzle-grid-item>
       </div>
@@ -36,15 +35,21 @@ import {
   watch,
 } from "vue";
 import PuzzleGridItem from "./PuzzleGridItem.vue";
-import { playPuzzleSymbol } from "@/injectionSymbols";
+import {
+  addKeyPressObserverSymbol,
+  playPuzzleSymbol,
+} from "@/injectionSymbols";
 
 const { puzzle } = inject(playPuzzleSymbol);
 const dimension = reactive({ x: 10, y: 9 });
 
+const lastKeyPress = ref("");
 const grid = reactive({ grid: [], letters: {} });
 const wordStarts = {};
-const observe = inject("observers");
-observe.push(notify);
+const addObserver = inject(addKeyPressObserverSymbol, (func) => {
+  func();
+});
+
 const selected = ref("");
 const highlighted = reactive([]);
 
@@ -53,8 +58,6 @@ const ORIENTATION = {
   HORIZONTAL: "h",
 };
 const orientation = ref("h");
-
-const lastKeyPress = ref("");
 
 const DIRECTION = {
   UP: "up",
@@ -163,6 +166,7 @@ function backspacePressed(stop = false) {
 }
 
 function parseWordStarts() {
+  if (puzzle.wordStarts === 0) return;
   let w = 0;
   puzzle.wordStarts.forEach((s) => {
     wordStarts[`${s.x}-${s.y}`] = ++w;
@@ -266,11 +270,21 @@ watch([selected, orientation], () => {
   hightlightCells();
 });
 
+function parseResponse() {
+  let i = 0;
+  grid.grid.forEach(([x, y, d]) => {
+    if (d.state !== 1) return;
+    if (puzzle.response[i] === "_") i++;
+    else d.letter = puzzle.response[i++];
+  });
+}
+
 onBeforeMount(() => {
+  addObserver(notify);
   parseWordStarts();
   parseArrows();
-
   parseGrid();
+  if (puzzle.response) parseResponse();
 });
 
 provide("letters", grid.letters);

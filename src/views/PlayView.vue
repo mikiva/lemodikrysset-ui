@@ -17,9 +17,12 @@ import PuzzleGrid from "../components/PuzzleGrid.vue";
 import KeyboardGrid from "../components/KeyboardGrid.vue";
 import { onMounted, reactive, provide, computed, onBeforeUnmount } from "vue";
 import { useRoute } from "vue-router";
-import { playPuzzleSymbol } from "@/injectionSymbols";
+import {
+  addKeyPressObserverSymbol,
+  playPuzzleSymbol,
+} from "@/injectionSymbols";
 
-const observers = [];
+import { addKeyPressObserver, handleKeyPress } from "@/services/inputservice";
 
 const route = useRoute();
 const pdata = reactive({});
@@ -42,20 +45,9 @@ onMounted(async () => {
 
   window.addEventListener("keydown", handleKeyPress);
 });
-function handleKeyPress(key) {
-  const k = key.key.toLowerCase();
-  console.log(key);
-  if (
-    k.match(/^([a-zåäö]|arrowup|arrowdown|arrowleft|arrowright|\s|backspace)$/)
-  ) {
-    observers.forEach((notify) => {
-      notify(k);
-    });
-  } else console.log("NO");
-}
 
 provide(playPuzzleSymbol, pdata);
-provide("observers", observers);
+provide(addKeyPressObserverSymbol, addKeyPressObserver);
 onBeforeUnmount(() => {
   console.log("unmount listener");
   window.removeEventListener("keydown", handleKeyPress);

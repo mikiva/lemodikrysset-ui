@@ -22,7 +22,7 @@ const arrow = computed(() => {
 
 const classes = {
   d: "-rotate-90 right-0",
-  r: "bottom-0",
+  r: "bottom-0 left-0",
 };
 
 const arrowClass = computed(() => {
