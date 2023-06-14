@@ -33,9 +33,26 @@ module.exports = {
           "0%": { scale: "0.8", opacity: "0" },
           "40%": { scale: "1.15", opacity: "1" },
         },
+        shake: {
+          "10%,90%": {
+            transform: "translateX(-1px)",
+          },
+
+          "20%, 80%": {
+            transform: "translateX(2px)",
+          },
+
+          "30%, 50%, 70%": {
+            transform: "translateX(-3px)",
+          },
+          "40%, 60%": {
+            transform: "translateX(3px)",
+          },
+        },
       },
       animation: {
         pop: "pop 0.1s",
+        shake: "shake 0.5s",
       },
       transitionProperty: {
         cell: "background-color",

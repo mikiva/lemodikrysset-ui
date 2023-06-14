@@ -26,13 +26,13 @@
 <script setup>
 import CellArrow from "@/components/grid/CellArrow.vue";
 import { ref, onMounted, watch, inject, toRefs, computed } from "vue";
-import { currentScreenSymbol } from "@/injectionSymbols";
+import { currentScreenWidthSymbol } from "@/injectionSymbols";
 import WordDivider from "@/components/grid/WordDivider.vue";
 
 const props = defineProps(["cell", "letter"]);
 const { cell, letter } = toRefs(props);
 
-const currentScreen = inject(currentScreenSymbol, 0);
+const currentScreen = inject(currentScreenWidthSymbol, 0);
 
 const cellRef = ref(null);
 onMounted(setCellSize);

@@ -1,5 +1,5 @@
 <template>
-  <div class="box-border outline outline-1 outline-blue-600/50">
+  <div class="box-border outline outline-1 outline-slate-700/25">
     <nav
       class="md:h-[5rem] h-[3rem] flex items-center justify-between max-w-appWidth w-full px-2 m-auto"
     >
@@ -26,9 +26,9 @@
 <script setup>
 import Session from "supertokens-web-js/recipe/session";
 import { ref, onMounted, inject } from "vue";
-import { currentScreenSymbol } from "@/injectionSymbols";
+import { currentScreenWidthSymbol } from "@/injectionSymbols";
 
-const current = inject(currentScreenSymbol);
+const current = inject(currentScreenWidthSymbol);
 const userId = ref("");
 
 onMounted(async () => {

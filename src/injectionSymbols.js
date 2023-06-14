@@ -1,5 +1,6 @@
-export const isLoggedInSymbol = "isLoggedIn";
-export const currentScreenSymbol = "CurrentScreenWidth";
-export const playPuzzleSymbol = "PLAY_PUZZLE";
+export const isLoggedInSymbol = Symbol();
+export const currentScreenWidthSymbol = Symbol();
+export const currentScreenHeightSymbol = Symbol();
+export const playPuzzleSymbol = Symbol();
 
-export const addKeyPressObserverSymbol = "ADD_KEY_PRESS_OBSERVER";
+export const addKeyPressObserverSymbol = Symbol();
