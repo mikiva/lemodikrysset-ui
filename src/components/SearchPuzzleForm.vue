@@ -1,84 +1,82 @@
 <template>
-  <form
+  <div
     class="max-w-gamewidth mx-auto relative w-5/6 transition-colors"
-    @submit.prevent="clicked"
     :class="{ 'animate-shake': notFoundEffect }"
   >
-    <div class="flex flex-col items-center m-auto relative">
-      <input
-        type="text"
-        ref="searchInput"
-        id="search-puzzle"
-        autocomplete="off"
-        spellcheck="false"
-        class="text-5xl text-center w-full z-10 bg-transparent py-2 border-2 uppercase transition-colors"
-        @focus="focusing"
-        @blur="focused = false"
-        @input="formInput"
-        v-model="code"
-        maxlength="8"
+    <div class="flex flex-col justify-center relative items-center gap-5">
+      <div
+        class="text-xl font-bold transition-colors"
+        :class="{ 'text-red-400': notFoundEffect }"
+      >
+        Krysskod
+      </div>
+      <div class="flex m-auto max-w-xl w-full">
+        <PuzzleGridItem
+          v-for="c in codeLength"
+          :cell="{ state: 1, letter: code[c - 1], start: c }"
+          class="shadow-lg border-b-2 border w-15 col-span-2 transition-colors"
+          :custom-text="'boardmd:text-5xl boardsm:text-3xl text-2xl'"
+          :class="[
+            code.length === c - 1 ? 'bg-gray-400 animate-pulse' : 'b',
+            { 'text-red-400 border-red-400 bg-red-100': notFoundEffect },
+          ]"
+        >
+        </PuzzleGridItem>
+      </div>
+      <button
+        ref="playButton"
+        class="m-auto w-1/2 border mt-2 text-2xl disabled:bg-gray-200 bg-gray-400 shadow-lg disabled:shadow-inherit disabled:text-gray-300 disabled:border-inherit p-2 transition-colors"
+        :disabled="code.length < codeLength"
+        @click="submitCode"
         :class="{
-          'border-red-200 text-red-500': notFoundEffect,
-        }"
-      />
-      <span
-        class="absolute -translate-y-1/2 text-black/50 bg-white z-10 pointer-events-none px-3 transition-all"
-        :class="{
-          '-left-4 -rotate-12 top-0 text-lg shadow': focused || code.length > 0,
-          'left-1/2 top-1/2 -translate-x-1/2 md:text-4xl text-3xl':
-            !focused && code.length === 0,
-          'text-red-300': notFoundEffect,
+          'bg-red-500/25 text-red-500': notFoundEffect,
         }"
       >
-        <div class="h-full flex items-center justify-center transition-colors">
-          Krysskod
-        </div>
-      </span>
+        Spela
+      </button>
     </div>
-    <button
-      ref="playButton"
-      class="w-full border mt-2 text-2xl disabled:bg-gray-200 bg-gray-400 shadow-lg disabled:shadow-inherit disabled:text-gray-300 disabled:border-inherit p-2 transition-colors"
-      :disabled="code.length < 2"
-      type="submit"
-      :class="{
-        'bg-red-500/25 text-red-500': notFoundEffect,
-      }"
-    >
-      Spela
-    </button>
-  </form>
+  </div>
 </template>
 <script setup>
-import { onMounted, ref, toRefs, watch } from "vue";
+import { computed, onBeforeUnmount, onMounted, ref, toRefs, watch } from "vue";
+import PuzzleGridItem from "@/components/PuzzleGridItem.vue";
 
-const props = defineProps(["notFoundEffect"]);
-const emit = defineEmits(["clicked", "formInput"]);
+const props = defineProps(["notFoundEffect", "codeLength"]);
+const emit = defineEmits(["submitCode", "formInput"]);
 const searchInput = ref(null);
 const focused = ref(false);
 const code = ref("");
 
-const { notFoundEffect } = toRefs(props);
+const { notFoundEffect, codeLength } = toRefs(props);
 const originalSize = ref(0);
 
-onMounted(() => {
-  originalSize.value = Math.abs(screen.height + screen.width);
-});
+import {
+  addKeyPressObserver,
+  removeKeyPressObserver,
+} from "@/services/inputservice";
 
-function focusing() {
-  focused.value = true;
+function onCodePress(key) {
+  if (key.match(/^[a-zåäö]$/)) {
+    if (code.value.length === codeLength.value) return;
+    code.value += key.toUpperCase();
+  } else if (key === "backspace") code.value = code.value.slice(0, -1);
+  else if (key === "enter") submitCode();
 }
 
-function clicked() {
-  emit("clicked", code.value);
-}
-
-function formInput(evt) {
-  code.value = evt.target.value;
-  emit("formInput", code);
+function submitCode() {
+  emit("submitCode", code.value.toLowerCase());
 }
 
 watch(code, () => {
   code.value = code.value.toUpperCase();
+});
+
+onMounted(() => {
+  originalSize.value = Math.abs(screen.height + screen.width);
+  addKeyPressObserver(onCodePress);
+});
+onBeforeUnmount(() => {
+  removeKeyPressObserver(onCodePress);
 });
 </script>
 

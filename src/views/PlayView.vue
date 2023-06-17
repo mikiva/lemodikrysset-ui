@@ -22,7 +22,7 @@ import {
   playPuzzleSymbol,
 } from "@/injectionSymbols";
 
-import { addKeyPressObserver, handleKeyPress } from "@/services/inputservice";
+import { addKeyPressObserver } from "@/services/inputservice";
 
 const route = useRoute();
 const pdata = reactive({});
@@ -43,14 +43,14 @@ onMounted(async () => {
   pdata.puzzle = puzzle;
   console.log("mount listener");
 
-  window.addEventListener("keydown", handleKeyPress);
+  //window.addEventListener("keydown", handleKeyPress);
 });
 
 provide(playPuzzleSymbol, pdata);
 provide(addKeyPressObserverSymbol, addKeyPressObserver);
 onBeforeUnmount(() => {
   console.log("unmount listener");
-  window.removeEventListener("keydown", handleKeyPress);
+  // window.removeEventListener("keydown", handleKeyPress);
 });
 </script>
 

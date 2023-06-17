@@ -29,6 +29,15 @@
 
 <script setup>
 import KeyboardKey from "./KeyboardKey.vue";
+import { onBeforeUnmount, onMounted } from "vue";
+import { handleKeyPress } from "@/services/inputservice";
+
+onMounted(() => {
+  window.addEventListener("keydown", handleKeyPress);
+});
+onBeforeUnmount(() => {
+  window.removeEventListener("keydown", handleKeyPress);
+});
 </script>
 
 <style scoped></style>

@@ -12,14 +12,14 @@
     <CellArrow v-if="cell.arrow" :direction="cell.arrow"></CellArrow>
     <div
       class="flex h-full items-center relative w-full font-mono animate-pop"
+      :class="cellTextClasses"
       v-if="cell.letter"
     >
-      <span
-        class="block m-auto boardmd:text-4xl boardsm:text-3xl text-2xl leading-none"
-      >
+      <span class="block m-auto leading-none">
         {{ cell.letter }}
       </span>
     </div>
+    <slot></slot>
   </div>
 </template>
 
@@ -29,8 +29,8 @@ import { ref, onMounted, watch, inject, toRefs, computed } from "vue";
 import { currentScreenWidthSymbol } from "@/injectionSymbols";
 import WordDivider from "@/components/grid/WordDivider.vue";
 
-const props = defineProps(["cell", "letter"]);
-const { cell, letter } = toRefs(props);
+const props = defineProps(["cell", "letter", "customText"]);
+const { cell, letter, customText } = toRefs(props);
 
 const currentScreen = inject(currentScreenWidthSymbol, 0);
 
@@ -44,6 +44,17 @@ const cellStyle = computed(() => {
   }
   return {
     textTransform: "uppercase",
+  };
+});
+
+const cellTextClasses = computed(() => {
+  if (customText.value) {
+    return {
+      [customText.value]: true,
+    };
+  }
+  return {
+    "boardmd:text-4xl boardsm:text-3xl text-2xl": true,
   };
 });
 

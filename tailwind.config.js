@@ -49,6 +49,10 @@ module.exports = {
             transform: "translateX(3px)",
           },
         },
+        toast: {
+          "0%": { opacity: 0 },
+          "100%": { opacity: 1 },
+        },
       },
       animation: {
         pop: "pop 0.1s",

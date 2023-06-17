@@ -13,7 +13,7 @@
 
 <script setup>
 import { ref, onMounted, provide, onBeforeMount, onBeforeUnmount } from "vue";
-import { RouterView, useRouter } from "vue-router";
+import { RouterView } from "vue-router";
 import TopNav from "./components/TopNav.vue";
 import Session from "supertokens-web-js/recipe/session";
 import {
@@ -26,7 +26,6 @@ import ToastsContainer from "@/components/toasts/ToastsContainer.vue";
 const currentScreenWidth = ref(null);
 const currentScreenHeight = ref(null);
 const isLoggedIn = ref(false);
-const resizing = ref(-1);
 
 onBeforeMount(async () => {
   if (await Session.doesSessionExist()) isLoggedIn.value = true;

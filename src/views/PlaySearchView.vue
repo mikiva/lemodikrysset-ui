@@ -1,34 +1,39 @@
 <template>
   <div
-    class="text-center m-2 py-2 px-4 shadow h-2/3 flex flex-col justify-center relative"
+    class="text-center m-2 py-2 px-4 shadow h-full flex flex-col justify-between relative"
   >
-    <h2 class="text-2xl font-bold mb-2">Spela Lemodikrysset</h2>
-    <p class="">För att spela - fyll i krysskoden du fått av quizmästaren.</p>
-    <div class="h-full flex flex-col justify-center">
-      <SearchPuzzleForm
-        :not-found-effect="notFoundEffect"
-        @clicked="play"
-        @form-input="formInput"
-      >
-      </SearchPuzzleForm>
+    <div class="flex flex-col justify-center">
+      <h2 class="text-2xl font-bold mb-2">Spela Lemodikrysset</h2>
+      <p class="">För att spela - fyll i krysskoden du fått av quizmästaren.</p>
     </div>
+    <SearchPuzzleForm
+      :code-length="CODE_LENGTH"
+      @submit-code="play"
+      :not-found-effect="notFoundEffect"
+    ></SearchPuzzleForm>
+    <KeyboardGrid></KeyboardGrid>
   </div>
 </template>
 
 <script setup>
-import SearchPuzzleForm from "@/components/SearchPuzzleForm.vue";
-import { ref } from "vue";
+import { ref, onMounted, onBeforeUnmount } from "vue";
+import { PUSH } from "@/injectionSymbols";
+import bus from "@/services/emitter";
+import KeyboardGrid from "@/components/KeyboardGrid.vue";
 
 const notFound = ref(false);
 const notFoundEffect = ref(false);
+const router = useRouter();
+import PuzzleGridItem from "@/components/PuzzleGridItem.vue";
+import SearchPuzzleForm from "@/components/SearchPuzzleForm.vue";
+import { useRouter } from "vue-router";
 
-function formInput() {
-  notFound.value = false;
-}
+const CODE_LENGTH = 5;
+let timeout;
 
 async function play(code) {
-  console.log(code);
-  notFound.value = true;
+  if (code.length < CODE_LENGTH) return;
+  notFound.value = false;
   const url = "/api/v1/play/puzzle/exists?";
   try {
     const result = await fetch(
@@ -38,14 +43,26 @@ async function play(code) {
         })
     );
     const exists = result.status === 204;
+
     if (!exists) {
+      clearTimeout(timeout);
       notFound.value = true;
       notFoundEffect.value = true;
+
+      bus.emit(PUSH, {
+        message: result.status === 404 ? "Ogiltig krysskod" : "Oväntat fel",
+      });
+      timeout = setTimeout(() => {
+        notFoundEffect.value = false;
+      }, 1000);
+    } else {
+      await router.push({
+        name: "puzzle",
+        params: { puzzleid: code },
+      });
     }
-    setTimeout(() => {
-      notFoundEffect.value = false;
-    }, 1000);
   } catch (err) {
+    console.log(err);
     console.log(err.status);
   }
 }

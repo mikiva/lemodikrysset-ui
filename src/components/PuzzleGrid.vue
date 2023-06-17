@@ -33,12 +33,17 @@ import {
   ref,
   computed,
   watch,
+  onBeforeUnmount,
 } from "vue";
 import PuzzleGridItem from "./PuzzleGridItem.vue";
 import {
   addKeyPressObserverSymbol,
   playPuzzleSymbol,
 } from "@/injectionSymbols";
+import {
+  addKeyPressObserver,
+  removeKeyPressObserver,
+} from "@/services/inputservice";
 
 const { puzzle } = inject(playPuzzleSymbol);
 const dimension = reactive({ x: 10, y: 9 });
@@ -46,6 +51,7 @@ const dimension = reactive({ x: 10, y: 9 });
 const lastKeyPress = ref("");
 const grid = reactive({ grid: [], letters: {} });
 const wordStarts = {};
+
 const addObserver = inject(addKeyPressObserverSymbol, (func) => {
   func();
 });
@@ -280,11 +286,14 @@ function parseResponse() {
 }
 
 onBeforeMount(() => {
-  addObserver(notify);
+  addKeyPressObserver(notify);
   parseWordStarts();
   parseArrows();
   parseGrid();
   if (puzzle.response) parseResponse();
+});
+onBeforeUnmount(() => {
+  removeKeyPressObserver(notify);
 });
 
 provide("letters", grid.letters);
