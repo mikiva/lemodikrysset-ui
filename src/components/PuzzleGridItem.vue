@@ -1,6 +1,6 @@
 <template>
   <div
-    class="w-full h-full z-1 relative transition-cell duration-100 box-border leading-none"
+    class="w-full h-full z-1 relative transition-cell duration-100 leading-none"
     :class="[cell.state === 0 ? 'bg-slate-600' : 'bg-white']"
     :style="cellStyle"
     ref="cellRef"

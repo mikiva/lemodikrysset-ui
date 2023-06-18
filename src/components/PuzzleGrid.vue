@@ -1,7 +1,7 @@
 <template>
   <div>
     <div
-      class="grid grid-rows-9 grid-cols-10 gap-px mx-auto box-border max-w-[499px] max-h-[449px] w-full border-2 border-slate-600 rounded-xl overflow-hidden bg-slate-600 shadow-lg"
+      class="grid grid-rows-9 grid-cols-10 gap-x-px gap-y-px mx-auto box-border max-w-gamewidth max-h-[459px] w-full border border-slate-600 rounded overflow-hidden bg-slate-600 shadow-lg"
     >
       <puzzle-grid-item
         v-for="([x, y, data], idx) in grid.grid"
