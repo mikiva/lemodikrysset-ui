@@ -1,6 +1,6 @@
 <template>
   <div
-    class="w-full h-full max-h-36 grid gap-1 px-2 box-border grid-cols-keyboard relative grid-rows-keyboard bottom-0 max-w-gamewidth mx-auto"
+    class="w-full h-full max-h-40 grid gap-1 px-2 box-border grid-cols-keyboard relative grid-rows-keyboard bottom-0 max-w-appWidth mx-auto"
   >
     <KeyboardKey
       :inputKey="key"

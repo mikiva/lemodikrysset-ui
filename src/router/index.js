@@ -20,6 +20,12 @@ const router = createRouter({
       beforeEnter: enterIfLoggedIn,
     },
     {
+      path: "/create",
+      name: "create",
+      component: () => import("@/views/CreatePuzzleView.vue"),
+      beforeEnter: enterIfLoggedIn,
+    },
+    {
       path: "/play/:puzzleid",
       name: "puzzle",
       component: () => import("../views/PlayView.vue"),

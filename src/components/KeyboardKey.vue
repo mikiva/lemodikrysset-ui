@@ -1,6 +1,6 @@
 <template>
   <button
-    class="flex h-full max-h-[44px] justify-center items-center text-md uppercase font-bold outline-1 select-none bg-slate-400/70 rounded"
+    class="flex h-full max-h-[50px] justify-center items-center text-md uppercase font-bold outline-1 select-none bg-slate-300 rounded"
     @click="keyPressed"
   >
     {{ inputKey }}

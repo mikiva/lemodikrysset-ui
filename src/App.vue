@@ -3,7 +3,7 @@
     <ToastsContainer></ToastsContainer>
     <TopNav>
       <main
-        class="m-auto md:h-[calc(100%-5rem)] h-[calc(100%-3rem)] relative py-2 max-w-appWidth"
+        class="m-auto md:h-[calc(100%-5rem)] h-[calc(100%-3rem)] relative p-2 max-w-appWidth"
       >
         <RouterView />
       </main>

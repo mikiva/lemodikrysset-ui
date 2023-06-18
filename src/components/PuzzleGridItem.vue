@@ -1,7 +1,7 @@
 <template>
   <div
-    class="w-full h-full z-0 border-gray-800 grow relative transition-cell duration-100"
-    :class="{ 'bg-gray-800': cell.state === 0 }"
+    class="w-full h-full z-1 relative transition-cell duration-100 box-border leading-none"
+    :class="[cell.state === 0 ? 'bg-slate-600' : 'bg-white']"
     :style="cellStyle"
     ref="cellRef"
   >
@@ -10,14 +10,15 @@
     }}</span>
     <WordDivider v-if="cell.state > 1" :state="cell.state"></WordDivider>
     <CellArrow v-if="cell.arrow" :direction="cell.arrow"></CellArrow>
+    <CellDash v-if="cell.dash" :direction="cell.dash"></CellDash>
     <div
       class="flex h-full items-center relative w-full font-mono animate-pop"
       :class="cellTextClasses"
-      v-if="cell.letter"
+      v-show="cell.letter"
     >
-      <span class="block m-auto leading-none">
+      <div ref="cellLetter" class="inline-block m-auto leading-none">
         {{ cell.letter }}
-      </span>
+      </div>
     </div>
     <slot></slot>
   </div>
@@ -28,6 +29,7 @@ import CellArrow from "@/components/grid/CellArrow.vue";
 import { ref, onMounted, watch, inject, toRefs, computed } from "vue";
 import { currentScreenWidthSymbol } from "@/injectionSymbols";
 import WordDivider from "@/components/grid/WordDivider.vue";
+import CellDash from "@/components/grid/CellDash.vue";
 
 const props = defineProps(["cell", "letter", "customText"]);
 const { cell, letter, customText } = toRefs(props);
@@ -35,6 +37,7 @@ const { cell, letter, customText } = toRefs(props);
 const currentScreen = inject(currentScreenWidthSymbol, 0);
 
 const cellRef = ref(null);
+const cellLetter = ref(null);
 onMounted(setCellSize);
 const cellStyle = computed(() => {
   if (cell.value.state !== 1) {
@@ -53,16 +56,16 @@ const cellTextClasses = computed(() => {
       [customText.value]: true,
     };
   }
-  return {
-    "boardmd:text-4xl boardsm:text-3xl text-2xl": true,
-  };
+  return {};
 });
 
 watch(currentScreen, setCellSize);
 
 function setCellSize() {
   let c = cellRef.value;
-  if (c.clientWidth !== c.clientHeight) c.style.height = c.clientWidth + "px";
+  let letter = cellLetter.value;
+  c.style.height = c.clientWidth + "px";
+  letter.style.fontSize = c.clientWidth - 5 + "px";
 }
 </script>
 

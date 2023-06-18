@@ -1,10 +1,10 @@
 <template>
   <div
-    class="text-center m-2 py-2 px-4 shadow h-full flex flex-col justify-between relative"
+    class="text-center m-22 shadow h-full flex flex-col justify-between relative"
   >
-    <div class="flex flex-col justify-center">
+    <div class="flex flex-col justify-center px-2">
       <h2 class="text-2xl font-bold mb-2">Spela Lemodikrysset</h2>
-      <p class="">För att spela - fyll i krysskoden du fått av quizmästaren.</p>
+      <p>För att spela - fyll i krysskoden du fått av quizmästaren.</p>
     </div>
     <SearchPuzzleForm
       :code-length="CODE_LENGTH"

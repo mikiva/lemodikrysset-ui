@@ -1,25 +1,23 @@
 <template>
   <div>
     <div
-      class="grid grid-rows-9 grid-cols-10 mx-auto border-gray-800 box-border border-r border-b max-w-[499px] max-h-[449px] w-full"
+      class="grid grid-rows-9 grid-cols-10 gap-px mx-auto box-border max-w-[499px] max-h-[449px] w-full border-2 border-slate-600 rounded-xl overflow-hidden bg-slate-600 shadow-lg"
     >
-      <div v-for="([x, y, data], idx) in grid.grid" :key="idx">
-        <puzzle-grid-item
-          @click="selectCell(`${x}-${y}`)"
-          :class="[
-            x < dimension.x ? 'border-t' : '',
-            y < dimension.y ? 'border-l' : '',
-            highlighted.includes(`${x}-${y}`) ? 'bg-gray-300' : '',
-            selected === `${x}-${y}` ? 'bg-gray-400' : '',
-          ]"
-          :cell="data"
-        >
-        </puzzle-grid-item>
-      </div>
+      <puzzle-grid-item
+        v-for="([x, y, data], idx) in grid.grid"
+        :key="idx"
+        @click="selectCell(`${x}-${y}`)"
+        :class="[
+          highlighted.includes(`${x}-${y}`) ? '!bg-gray-300' : '',
+          selected === `${x}-${y}` ? '!bg-gray-400' : '',
+        ]"
+        :cell="data"
+      >
+      </puzzle-grid-item>
     </div>
 
-    <p>Selected cell: {{ selected || "none" }}</p>
-    <p>Direction: {{ orientation }}</p>
+    <p>Selected cell: {{ selectedCellCoordinates || "none" }}</p>
+    <p>Direction: {{ orientation === "h" ? "Vågrätt" : "Lodrätt" }}</p>
     <p>Last key press: [{{ lastKeyPress }}]</p>
   </div>
 </template>
@@ -44,8 +42,10 @@ import {
   addKeyPressObserver,
   removeKeyPressObserver,
 } from "@/services/inputservice";
+import { Operation } from "@/helpers";
 
 const { puzzle } = inject(playPuzzleSymbol);
+console.log(puzzle);
 const dimension = reactive({ x: 10, y: 9 });
 
 const lastKeyPress = ref("");
@@ -172,14 +172,12 @@ function backspacePressed(stop = false) {
 }
 
 function parseWordStarts() {
-  if (puzzle.wordStarts === 0) return;
+  if (puzzle.wordStarts.length === 0) return;
   let w = 0;
   puzzle.wordStarts.forEach((s) => {
     wordStarts[`${s.x}-${s.y}`] = ++w;
   });
 }
-
-const arrows = {};
 
 const selectedCellCoordinates = computed(() => {
   const [x, y] = selected.value.split("-");
@@ -192,21 +190,16 @@ const selectedCellGridIndex = computed(() => {
   return i;
 });
 
-function nextCellIndex(current, operation = "+") {
+function nextCellIndex(current, operation = Operation.add) {
   const [x, y] = current;
   if (orientation.value === "h") {
-    const valueExpression = `x ${operation} 1`;
-    const val = eval(valueExpression);
+    const val = operation(x, 1);
     if (val >= dimension.x || val < 0) return -1;
-    const expression = `y * ${dimension.x} + (x ${operation} 1 )`; //.format(dimension.x, operation);
-    const newIndex = eval(expression);
-    return newIndex;
+    return y * dimension.x + operation(x, 1);
   }
-  const valueExpression = `y ${operation} 1`;
-  const val = eval(valueExpression);
+  const val = operation(y, 1);
   if (val >= dimension.y || val < 0) return -1;
-  const expression = `(y ${operation} 1 ) * ${dimension.x} + x`;
-  return eval(expression);
+  return operation(y, 1) * dimension.x + x;
 }
 
 function hightlightCells() {
@@ -214,7 +207,7 @@ function hightlightCells() {
   if (!selected.value) return;
   const maxLoops = dimension.x * dimension.y; //Prevent infinite loop
 
-  const ops = ["+", "-"];
+  const ops = [Operation.add, Operation.sub];
   ops.forEach((op) => {
     let currLoop = 0;
     let [x, y] = selectedCellCoordinates.value;
@@ -246,9 +239,17 @@ function selectCell(cellId) {
   highlighted.length = 0;
 }
 
+const arrows = {};
 function parseArrows() {
   puzzle.arrows.forEach((s) => {
     arrows[`${s.x}-${s.y}`] = s.direction;
+  });
+}
+
+const dashes = {};
+function parseDashes() {
+  puzzle.dashes.forEach((d) => {
+    dashes[`${d.x}-${d.y}`] = d.direction;
   });
 }
 
@@ -268,6 +269,7 @@ function _get_cell_data(x, y) {
   const w = `${x}-${y}`;
   if (w in wordStarts) data.start = wordStarts[w];
   if (w in arrows) data.arrow = arrows[w];
+  if (w in dashes) data.dash = dashes[w];
 
   return data;
 }
@@ -287,8 +289,9 @@ function parseResponse() {
 
 onBeforeMount(() => {
   addKeyPressObserver(notify);
-  parseWordStarts();
-  parseArrows();
+  if ("wordStarts" in puzzle) parseWordStarts();
+  if ("arrows" in puzzle) parseArrows();
+  if ("dashes" in puzzle) parseDashes();
   parseGrid();
   if (puzzle.response) parseResponse();
 });

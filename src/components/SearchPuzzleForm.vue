@@ -10,15 +10,19 @@
       >
         Krysskod
       </div>
-      <div class="flex m-auto max-w-xl w-full">
+      <div
+        class="flex m-auto max-w-xl w-full rounded-lg overflow-hidden border-2 border-slate-400"
+      >
         <PuzzleGridItem
-          v-for="c in codeLength"
-          :cell="{ state: 1, letter: code[c - 1], start: c }"
-          class="shadow-lg border-b-2 border w-15 col-span-2 transition-colors"
+          v-for="(c, idx) in codeLength"
+          :key="c"
+          :cell="{ state: 1, letter: code[idx], start: c }"
+          class="w-15 col-span-2 transition-all"
           :custom-text="'boardmd:text-5xl boardsm:text-3xl text-2xl'"
           :class="[
-            code.length === c - 1 ? 'bg-gray-400 animate-pulse' : 'b',
-            { 'text-red-400 border-red-400 bg-red-100': notFoundEffect },
+            code.length === c - 1 ? 'animate-pulse !bg-slate-400' : '',
+            { 'border-r-slate-400 border-r': c < codeLength },
+            { 'text-red-400 !border-red-400 !bg-red-100': notFoundEffect },
           ]"
         >
         </PuzzleGridItem>

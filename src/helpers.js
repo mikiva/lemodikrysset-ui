@@ -10,3 +10,21 @@ export function filterInPlace(array, condition) {
   array.length = j;
   return array;
 }
+
+export const Operation = {
+  add: (a, b) => a + b,
+  sub: (a, b) => a - b,
+  mul: (a, b) => a * b,
+  div: (a, b) => a / b,
+};
+
+export function emptyPuzzle() {
+  let nbrRows = 9;
+  const grid = [];
+  for (let i = 0; i < nbrRows; i++) {
+    grid.push(Array.from({ length: 10 }, () => 1));
+  }
+  return {
+    state: grid,
+  };
+}
