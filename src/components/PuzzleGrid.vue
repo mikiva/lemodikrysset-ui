@@ -1,7 +1,7 @@
 <template>
   <div>
     <div
-      class="grid grid-rows-9 grid-cols-10 gap-x-px gap-y-px mx-auto box-border max-w-gamewidth max-h-[459px] w-full border border-slate-600 rounded overflow-hidden bg-slate-600 shadow-lg"
+      class="grid grid-rows-9 grid-cols-10 gap-x-px gap-y-px mx-auto box-border max-w-gamewidth max-h-[459px] w-full border border-slate-600 rounded overflow-hidden bg-slate-600 shadow-lg select-none"
     >
       <puzzle-grid-item
         v-for="([x, y, data], idx) in grid.grid"
@@ -32,6 +32,7 @@ import {
   computed,
   watch,
   onBeforeUnmount,
+  toRefs,
 } from "vue";
 import PuzzleGridItem from "./PuzzleGridItem.vue";
 import {
@@ -44,6 +45,7 @@ import {
 } from "@/services/inputservice";
 import { Operation } from "@/helpers";
 
+const emit = defineEmits(["selectCell"]);
 const { puzzle } = inject(playPuzzleSymbol);
 console.log(puzzle);
 const dimension = reactive({ x: 10, y: 9 });
@@ -240,6 +242,7 @@ function selectCell(cellId) {
 }
 
 const arrows = {};
+
 function parseArrows() {
   puzzle.arrows.forEach((s) => {
     arrows[`${s.x}-${s.y}`] = s.direction;
@@ -247,6 +250,7 @@ function parseArrows() {
 }
 
 const dashes = {};
+
 function parseDashes() {
   puzzle.dashes.forEach((d) => {
     dashes[`${d.x}-${d.y}`] = d.direction;
@@ -276,6 +280,8 @@ function _get_cell_data(x, y) {
 
 watch([selected, orientation], () => {
   hightlightCells();
+  console.log("changed");
+  emit("selectCell", selectedCellGridIndex.value);
 });
 
 function parseResponse() {

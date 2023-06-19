@@ -1,5 +1,5 @@
 <template>
-  <div class="h-full">
+  <div class="h-full touch-manipulation">
     <ToastsContainer></ToastsContainer>
     <TopNav>
       <main
