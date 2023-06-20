@@ -47,7 +47,6 @@ import { Operation } from "@/helpers";
 
 const emit = defineEmits(["selectCell"]);
 const { puzzle } = inject(playPuzzleSymbol);
-console.log(puzzle);
 const dimension = reactive({ x: 10, y: 9 });
 
 const lastKeyPress = ref("");
@@ -207,6 +206,7 @@ function nextCellIndex(current, operation = Operation.add) {
 function hightlightCells() {
   highlighted.length = 0;
   if (!selected.value) return;
+  else if (puzzle?.edit) return;
   const maxLoops = dimension.x * dimension.y; //Prevent infinite loop
 
   const ops = [Operation.add, Operation.sub];
@@ -280,9 +280,21 @@ function _get_cell_data(x, y) {
 
 watch([selected, orientation], () => {
   hightlightCells();
-  console.log("changed");
   emit("selectCell", selectedCellGridIndex.value);
 });
+
+const puzzleUnwatch = watch(
+  puzzle,
+  () => {
+    drawGrid();
+    if (puzzle.edit) selected.value = "";
+    else hightlightCells();
+  },
+  { deep: true }
+);
+if (!("edit" in puzzle)) {
+  puzzleUnwatch();
+}
 
 function parseResponse() {
   let i = 0;
@@ -293,13 +305,18 @@ function parseResponse() {
   });
 }
 
-onBeforeMount(() => {
-  addKeyPressObserver(notify);
+function drawGrid() {
+  console.log("redraw");
   if ("wordStarts" in puzzle) parseWordStarts();
   if ("arrows" in puzzle) parseArrows();
   if ("dashes" in puzzle) parseDashes();
   parseGrid();
   if (puzzle.response) parseResponse();
+}
+
+onBeforeMount(() => {
+  addKeyPressObserver(notify);
+  drawGrid();
 });
 onBeforeUnmount(() => {
   removeKeyPressObserver(notify);
