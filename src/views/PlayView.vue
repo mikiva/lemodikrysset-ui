@@ -23,6 +23,7 @@ import {
 } from "@/injectionSymbols";
 
 import { addKeyPressObserver } from "@/services/inputservice";
+import { getPuzzle } from "@/storage";
 
 const route = useRoute();
 const pdata = reactive({});
@@ -41,6 +42,15 @@ onMounted(async () => {
   const puzzle = await response.json();
 
   pdata.puzzle = puzzle;
+  const localPuzzle = getPuzzle(puzzle.id);
+  let userInput;
+  if (localPuzzle) userInput = JSON.parse(localPuzzle).response;
+  if (userInput) pdata.puzzle.response = userInput;
+  else {
+    pdata.puzzle.response = "_".repeat(
+      puzzle.gridDimensions.reduce((a, b) => a * b, 1)
+    );
+  }
   console.log("mount listener");
 
   //window.addEventListener("keydown", handleKeyPress);

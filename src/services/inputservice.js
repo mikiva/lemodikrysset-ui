@@ -6,10 +6,7 @@ export function addKeyPressObserver(observer) {
   observers.push(observer);
 }
 export function removeKeyPressObserver(observer) {
-  console.log(observers);
   const obs = observers.indexOf(observer);
-
-  console.log(obs);
   if (obs > -1) {
     observers.splice(obs, 1);
   }

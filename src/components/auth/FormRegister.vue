@@ -16,16 +16,21 @@
       is-password
       labelText="Lösenord"
     ></input-field>
+    <input-field
+      input-id="login-password-confirm"
+      v-model="password"
+      is-password
+      labelText="Lösenord"
+    ></input-field>
     <button
       class="bg-blue-300 rounded border shadow-md"
       type="submit"
-      @click="register"
       value="Login"
     >
       REGISTRERA
     </button>
     <div class="text-slate-500 mt-4">
-      Har redan ett konto?
+      Har du redan ett konto?
       <router-link class="underline" to="/login">Logga in</router-link>
     </div>
   </form>

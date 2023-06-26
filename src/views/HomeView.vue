@@ -18,30 +18,17 @@ import { provide, reactive } from "vue";
 import PuzzleGrid from "@/components/PuzzleGrid.vue";
 import { playPuzzleSymbol } from "@/injectionSymbols";
 
-const state = [
-  [1, 1, 0, 1, 0, 1, 1, 1, 1, 1],
-  [0, 1, 1, 1, 1, 0, 1, 0, 0, 1],
-  [1, 1, 0, 0, 1, 1, 1, 1, 0, 1],
-  [1, 0, 1, 0, 1, 0, 1, 0, 1, 1],
-  [1, 1, 1, 1, 1, 0, 1, 0, 0, 1],
-  [1, 0, 1, 0, 1, 0, 1, 0, 0, 1],
-  [1, 1, 1, 0, 1, 1, 1, 1, 1, 0],
-  [1, 0, 1, 0, 0, 1, 0, 1, 0, 0],
-  [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-];
+const state =
+  "110101111101111010011100111101101010101111111010011010101001111011111010100101001111111111";
 const response =
-  "________lemo____d______i_______k____r_____ysset______________";
+  "___________lemo_________d_________i_________k_________r_________ysset";
 const frontPuzzle = reactive({
   puzzle: {
     pname: "FRONT",
     state: state,
-    id: "srtd",
+    id: "Lemodikrysset",
     wordStarts: [],
-    arrows: [
-      { x: 4, y: 1, direction: "d" },
-      { x: 4, y: 6, direction: "r" },
-    ],
-    dashes: [],
+    arrows: { d: [14], r: [64] },
     viewSolution: true,
     response: response,
   },

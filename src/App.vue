@@ -22,12 +22,18 @@ import {
   isLoggedInSymbol,
 } from "@/injectionSymbols";
 import ToastsContainer from "@/components/toasts/ToastsContainer.vue";
+import { clearOldPlays } from "@/storage";
 
 const currentScreenWidth = ref(null);
 const currentScreenHeight = ref(null);
 const isLoggedIn = ref(false);
 
 onBeforeMount(async () => {
+  try {
+    clearOldPlays();
+  } catch (err) {
+    console.log(err);
+  }
   if (await Session.doesSessionExist()) isLoggedIn.value = true;
 });
 

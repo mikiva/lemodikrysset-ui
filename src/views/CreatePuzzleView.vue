@@ -2,21 +2,27 @@
   <div class="flex flex-col justify-between h-full">
     <div class="relative flex gap-4 h-full">
       <PuzzleGrid
-        @select-cell="selectCell"
+        @clicked="clickedCell"
+        :edit-mode="mode !== 'input'"
         class="max-w-gamewidth w-full inline-block"
-        ref="puzzleGrid"
+        :key="clearKey"
+        v-if="pdata.puzzle"
       ></PuzzleGrid>
       <div class="bg-red-100">
         <div class="flex flex-col">
+          <CreateModeButton @click="clearBoard" class="bg-red-300 mb-10"
+            >clear</CreateModeButton
+          >
           <CreateModeButton
             v-for="m in modes"
             :key="m"
             :is-active="mode === m"
-            @click="mode = m"
+            @click="setMode(m)"
             >{{ m }}
           </CreateModeButton>
         </div>
       </div>
+      <div class="max-w-[300px] break-words">{{}}</div>
     </div>
     {{ current }}
     <KeyboardGrid></KeyboardGrid>
@@ -24,61 +30,172 @@
 </template>
 
 <script setup>
-import PuzzleGrid from "@/components/PuzzleGrid.vue";
-import { provide, reactive, ref, watch } from "vue";
+import { computed, onMounted, provide, reactive, ref, watch } from "vue";
 import { playPuzzleSymbol } from "@/injectionSymbols";
-import { emptyPuzzle } from "@/helpers";
+import { newPuzzle } from "@/helpers";
 import KeyboardGrid from "@/components/KeyboardGrid.vue";
 import CreateModeButton from "@/components/buttons/CreateModeButton.vue";
-
+import PuzzleGrid from "@/components/PuzzleGrid.vue";
 const current = ref("");
 const pdata = reactive({});
-pdata.puzzle = emptyPuzzle();
-pdata.puzzle.edit = false;
-pdata.puzzle.response = new Array(90 + 1).join("_");
-console.log(pdata.puzzle.response);
-const puzzleGrid = ref(null);
+const clearKey = ref(Symbol());
 
-const modes = ["input", "dark", "arrow", "dash", "divider"];
-
+const modes = reactive(["input", "dark", "arrow", "dash", "divider"]);
 const mode = ref("input");
+onMounted(() => {
+  pdata.puzzle = newPuzzle();
+  //console.log(pdata.puzzle);
+});
 
+function setMode(m) {
+  mode.value = m;
+  clearKey.value = Symbol();
+}
 const actions = {
-  [modes[0]]: () => {},
+  [modes[0]]: () => {
+    console.log("toggleInput");
+  },
   [modes[1]]: toggleDark,
   [modes[2]]: toggleArrow,
   [modes[3]]: toggleDash,
   [modes[4]]: toggleDivider,
 };
 
+const cellState = computed(() => {
+  let str = pdata.puzzle.state.split("");
+  return str[current.value];
+});
+
 function toggleDivider() {
-  console.log("div");
+  console.log("toggleDivider");
+  const c = current.value;
+  let str = pdata.puzzle.state.split("");
+  let newVal = str[c] === "0" ? "1" : str[c];
+  str[c] = String((newVal % 3) + 1);
+
+  console.log("c", str[c]);
+  pdata.puzzle.state = str.join("");
 }
 
 function toggleDash() {
-  console.log("dash");
+  console.log("toggleDash");
+  const c = current.value;
+  const r = pdata.puzzle.dashes.r;
+  const d = pdata.puzzle.dashes.d;
+  const ri = r.indexOf(c);
+  const di = d.indexOf(c);
+
+  if (ri > -1 && di > -1) {
+    r.splice(ri, 1);
+    d.splice(di, 1);
+  } else if (ri > -1) {
+    r.splice(ri, 1);
+    d.push(c);
+  } else {
+    r.push(c);
+  }
 }
 
 function toggleArrow() {
-  console.log("arrow");
+  console.log("toggleArrow");
+  let idx;
+  const c = current.value;
+  const d = [...pdata.puzzle.arrows.d];
+  const r = [...pdata.puzzle.arrows.r];
+
+  if ((idx = d.indexOf(c)) > -1) {
+    d.splice(idx, 1);
+    r.push(c);
+  } else if ((idx = r.indexOf(c)) > -1) {
+    r.splice(idx, 1);
+  } else {
+    d.push(c);
+  }
+  const arr = { d: d, r: r };
+  pdata.puzzle.arrows = arr;
+}
+function clearArrow() {
+  const down = [...pdata.puzzle.arrows.d];
+  const right = [...pdata.puzzle.arrows.r];
+  const c = current.value;
+  let idx;
+  if ((idx = down.indexOf(c)) > -1) {
+    down.splice(idx, 1);
+  } else if ((idx = right.indexOf(c)) > -1) {
+    right.splice(idx, 1);
+  }
+  pdata.puzzle.arrows = { d: down, r: right };
+}
+function clearDash() {
+  console.log("clearDash");
+  const c = current.value;
+  const r = [...pdata.puzzle.dashes.r];
+  const d = [...pdata.puzzle.dashes.d];
+  const ri = r.indexOf(c);
+  const di = d.indexOf(c);
+
+  if (di > -1) {
+    d.splice(di, 1);
+  }
+  if (ri > -1) {
+    r.splice(ri, 1);
+  }
+  pdata.puzzle.dashes = { d: d, r: r };
 }
 
 function toggleDark() {
-  console.log(pdata.puzzle.arrows);
   console.log("dark");
+  const c = current.value;
+  let str = pdata.puzzle.state.split("");
+  const state = str[c];
+
+  if (state !== "0") {
+    clearCurrentCell();
+
+    str[c] = "0";
+  } else {
+    str[c] = "1";
+  }
+
+  console.log("c", str[c]);
+  pdata.puzzle.state = str.join("");
 }
 
-function selectCell(cell) {
+function clearCurrentCell() {
+  clearArrow();
+  clearDash();
+  let resp = pdata.puzzle.response.split("");
+  resp[current.value] = "_";
+  pdata.puzzle.response = resp.join("");
+
+  //let resp  pdata.puzzle.response
+}
+function clearBoard() {
+  if (confirm("Återställer spelplan?")) {
+    pdata.puzzle = newPuzzle(true);
+    clearKey.value = Symbol();
+    // current.value = -1;
+  }
+}
+
+function clickedCell(cell) {
   current.value = cell;
-  actions[mode.value]();
-  console.log(cell);
+  if (cell > -1) {
+    actions[mode.value]();
+  }
+  if (mode.value !== "input") clearKey.value = Symbol();
 }
 
 watch(mode, (mod) => {
   console.log(mod);
-  pdata.puzzle.edit = mod !== "input";
 });
-
+//watch(
+//  pdata,
+//  () => {
+//    console.log("EDIINGNFSADJF");
+//  },
+//  { deep: true }
+//);
 provide(playPuzzleSymbol, pdata);
 </script>
 

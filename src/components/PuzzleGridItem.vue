@@ -9,15 +9,15 @@
       cell.start
     }}</span>
     <WordDivider v-if="cell.state > 1" :state="cell.state"></WordDivider>
-    <CellArrow v-if="cell.arrow" :direction="cell.arrow"></CellArrow>
-    <CellDash v-if="cell.dash" :direction="cell.dash"></CellDash>
+    <CellArrow v-for="arrow in cell.arrow" :direction="arrow"></CellArrow>
+    <CellDash v-for="dash in cell.dash" :direction="dash"></CellDash>
     <div
       class="flex h-full items-center relative w-full font-mono animate-pop"
       :class="cellTextClasses"
       v-show="cell.letter"
     >
       <div ref="cellLetter" class="inline-block m-auto leading-none">
-        {{ cell.letter }}
+        {{ cell.letter !== "_" ? cell.letter : "" }}
       </div>
     </div>
     <slot></slot>
@@ -32,7 +32,7 @@ import WordDivider from "@/components/grid/WordDivider.vue";
 import CellDash from "@/components/grid/CellDash.vue";
 
 const props = defineProps(["cell", "letter", "customText"]);
-const { cell, letter, customText } = toRefs(props);
+const { cell, customText } = toRefs(props);
 
 const currentScreen = inject(currentScreenWidthSymbol, 0);
 
@@ -41,9 +41,7 @@ const cellLetter = ref(null);
 onMounted(setCellSize);
 const cellStyle = computed(() => {
   if (cell.value.state !== 1) {
-    return {
-      pointerEvents: "none",
-    };
+    return {};
   }
   return {
     textTransform: "uppercase",

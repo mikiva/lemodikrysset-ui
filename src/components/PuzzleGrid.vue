@@ -6,7 +6,7 @@
       <puzzle-grid-item
         v-for="([x, y, data], idx) in grid.grid"
         :key="idx"
-        @click="selectCell(`${x}-${y}`)"
+        @click="selectCell(`${x}-${y}`, idx)"
         :class="[
           highlighted.includes(`${x}-${y}`) ? '!bg-gray-300' : '',
           selected === `${x}-${y}` ? '!bg-gray-400' : '',
@@ -17,6 +17,7 @@
     </div>
 
     <p>Selected cell: {{ selectedCellCoordinates || "none" }}</p>
+    <p>Selected cell index: {{ selectedCellGridIndex || "none" }}</p>
     <p>Direction: {{ orientation === "h" ? "Vågrätt" : "Lodrätt" }}</p>
     <p>Last key press: [{{ lastKeyPress }}]</p>
   </div>
@@ -27,7 +28,6 @@ import {
   reactive,
   inject,
   onBeforeMount,
-  provide,
   ref,
   computed,
   watch,
@@ -35,35 +35,26 @@ import {
   toRefs,
 } from "vue";
 import PuzzleGridItem from "./PuzzleGridItem.vue";
-import {
-  addKeyPressObserverSymbol,
-  playPuzzleSymbol,
-} from "@/injectionSymbols";
+import { playPuzzleSymbol } from "@/injectionSymbols";
 import {
   addKeyPressObserver,
   removeKeyPressObserver,
 } from "@/services/inputservice";
 import { Operation } from "@/helpers";
+import { savePuzzle } from "@/storage";
 
-const emit = defineEmits(["selectCell"]);
+const props = defineProps(["editMode"]);
+const { editMode } = toRefs(props);
+const emit = defineEmits(["selectCell", "clicked"]);
 const { puzzle } = inject(playPuzzleSymbol);
-const dimension = reactive({ x: 10, y: 9 });
+const [dimx, dimy] = puzzle.gridDimensions || [10, 9];
+const dimension = reactive({ x: dimx, y: dimy });
 
 const lastKeyPress = ref("");
 const grid = reactive({ grid: [], letters: {} });
-const wordStarts = {};
-
-const addObserver = inject(addKeyPressObserverSymbol, (func) => {
-  func();
-});
-
 const selected = ref("");
 const highlighted = reactive([]);
 
-const ORIENTATION = {
-  VERTICAL: "v",
-  HORIZONTAL: "h",
-};
 const orientation = ref("h");
 
 const DIRECTION = {
@@ -79,12 +70,25 @@ const DIRECTION = {
   v: "down",
 };
 
+const response = computed({
+  get() {
+    return puzzle.response.split("");
+  },
+  set(val) {
+    const idx = selectedCellGridIndex.value;
+    const arr = puzzle.response.split("");
+    arr[idx] = val;
+    puzzle.response = arr.join("");
+  },
+});
+
 function notify(key) {
   lastKeyPress.value = key;
   if (!selected.value) return;
   if (key.match(/^[a-zåäö]$/)) {
     // grid.letters[selected.value] = key;
-    grid.grid[selectedCellGridIndex.value][2].letter = key;
+    //grid.grid[selectedCellGridIndex.value][2].letter = key;
+    response.value = key;
     moveSelection(DIRECTION[orientation.value]);
   } else if (key in DIRECTION) moveSelection(DIRECTION[key]);
   else if (key === " ") changeOrientation();
@@ -164,20 +168,13 @@ function backspacePressed(stop = false) {
   const i = selectedCellGridIndex.value;
   if (i < 0) return;
   const data = grid.grid[i][2];
-  if (data.letter) {
-    delete data.letter;
+  if (data.letter !== "_") {
+    response.value = "_";
+    //drawGrid("backspace pressed");
   } else if (!stop) {
     moveSelection(dir);
     backspacePressed(true);
   }
-}
-
-function parseWordStarts() {
-  if (puzzle.wordStarts.length === 0) return;
-  let w = 0;
-  puzzle.wordStarts.forEach((s) => {
-    wordStarts[`${s.x}-${s.y}`] = ++w;
-  });
 }
 
 const selectedCellCoordinates = computed(() => {
@@ -235,94 +232,137 @@ function changeOrientation() {
   console.log("change dir: ", orientation.value);
 }
 
-function selectCell(cellId) {
+function selectCell(cellId, index = -1) {
+  if (index > -1) emit("clicked", index);
+
+  if (index > -1 && grid.grid[index][2].state !== 1) return false;
+
   if (selected.value === cellId) changeOrientation();
   selected.value = cellId;
   highlighted.length = 0;
-}
-
-const arrows = {};
-
-function parseArrows() {
-  puzzle.arrows.forEach((s) => {
-    arrows[`${s.x}-${s.y}`] = s.direction;
-  });
-}
-
-const dashes = {};
-
-function parseDashes() {
-  puzzle.dashes.forEach((d) => {
-    dashes[`${d.x}-${d.y}`] = d.direction;
-  });
+  return true;
 }
 
 function parseGrid() {
   const g = [];
   for (let i = 0; i < dimension.y; i++) {
     for (let j = 0; j < dimension.x; j++) {
-      g.push([j, i, _get_cell_data(j, i)]);
+      const index = i * dimension.x + j;
+      g.push([j, i, _get_cell_data(index)]);
     }
   }
-  grid.grid = g;
+  grid.grid = [...g];
 }
 
-function _get_cell_data(x, y) {
-  const data = { state: Number(puzzle.state[y][x]) };
-  if (data.state === 0) return data;
-  const w = `${x}-${y}`;
-  if (w in wordStarts) data.start = wordStarts[w];
-  if (w in arrows) data.arrow = arrows[w];
-  if (w in dashes) data.dash = dashes[w];
+const wordStars = computed(() => {
+  if (puzzle.wordStarts?.length > 0) {
+    return [...puzzle.wordStarts].sort((a, b) => {
+      if (a < b) return -1;
+      else if (a > b) return 1;
+      return 0;
+    });
+  }
+  return [];
+});
+const arrows = computed(() => {
+  if (puzzle.arrows) return { ...puzzle.arrows };
+  return {};
+});
+const dashes = computed(() => {
+  if (puzzle.dashes) return { ...puzzle.dashes };
+  return { d: [], r: [] };
+});
 
+function _get_cell_data(i) {
+  //const data = { state: Number(puzzle.state[y][x]) };
+  const data = { state: Number(puzzle.state[i]) };
+  if (data.state === 0) return data;
+  //const w = `${x}-${y}`;
+  let idx;
+
+  if ((idx = wordStars.value.indexOf(i)) > -1) {
+    data.start = idx + 1;
+  }
+  ["d", "r"].forEach((dir) => {
+    if ((idx = arrows.value[dir].indexOf(i)) > -1) {
+      if (!("arrow" in data)) data.arrow = [];
+      data.arrow.push(dir);
+    }
+    if ((idx = dashes.value[dir].indexOf(i)) > -1) {
+      if (!("dash" in data)) data.dash = [];
+      data.dash.push(dir);
+    }
+  });
+  data.letter = puzzle.response[i];
   return data;
 }
 
-watch([selected, orientation], () => {
-  hightlightCells();
-  emit("selectCell", selectedCellGridIndex.value);
-});
+watch(
+  [selected, orientation, response],
+  () => {
+    hightlightCells();
+    if (selected.value.length < 1) {
+      return;
+    }
+    emit("selectCell", selectedCellGridIndex.value);
+    drawGrid("select watcher");
+  },
+  {
+    onTrigger(e) {
+      //console.log("sel", e);
+    },
+  }
+);
 
 const puzzleUnwatch = watch(
-  puzzle,
+  () => [puzzle.arrows, puzzle.dashes, puzzle.state],
   () => {
-    drawGrid();
-    if (puzzle.edit) selected.value = "";
-    else hightlightCells();
+    if (editMode.value) {
+      selected.value = "";
+      drawGrid("puzzlewatch");
+    } else hightlightCells();
   },
-  { deep: true }
+  {
+    onTrigger(e) {
+      //console.log(e);
+    },
+    deep: true,
+  }
 );
-if (!("edit" in puzzle)) {
+if (editMode.value === undefined) {
   puzzleUnwatch();
 }
 
 function parseResponse() {
   let i = 0;
-  grid.grid.forEach(([x, y, d]) => {
-    if (d.state !== 1) return;
-    if (puzzle.response[i] === "_") i++;
-    else d.letter = puzzle.response[i++];
-  });
+  let resp = puzzle.response;
+
+  for (const [k, [x, y, d]] of Object.entries(grid.grid)) {
+    d.letter = resp[k];
+  }
 }
 
-function drawGrid() {
-  console.log("redraw");
-  if ("wordStarts" in puzzle) parseWordStarts();
-  if ("arrows" in puzzle) parseArrows();
-  if ("dashes" in puzzle) parseDashes();
+//function reDraw() {
+//  drawGrid();
+//}
+function drawGrid(caller = "") {
+  console.log(`drawGrid(${caller})`);
   parseGrid();
-  if (puzzle.response) parseResponse();
+  parseResponse();
+  try {
+    savePuzzle({ ...puzzle }, editMode.value !== undefined);
+  } catch (er) {
+    console.log("draw error", er);
+  }
 }
 
 onBeforeMount(() => {
   addKeyPressObserver(notify);
-  drawGrid();
+  drawGrid("onBeforeMount");
 });
 onBeforeUnmount(() => {
   removeKeyPressObserver(notify);
 });
-
-provide("letters", grid.letters);
 </script>
 
 <style scoped></style>

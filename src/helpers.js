@@ -1,3 +1,6 @@
+import { deletePuzzle, getPuzzle } from "@/storage";
+
+const CREATOR = "creator";
 export function filterInPlace(array, condition) {
   let i = 0,
     j = 0;
@@ -18,13 +21,34 @@ export const Operation = {
   div: (a, b) => a / b,
 };
 
-export function emptyPuzzle() {
-  let nbrRows = 9;
-  const grid = [];
-  for (let i = 0; i < nbrRows; i++) {
-    grid.push(Array.from({ length: 10 }, () => 1));
-  }
-  return {
-    state: grid,
+function getLocalPuzzle() {
+  let puzzle = getPuzzle(CREATOR);
+  puzzle = JSON.parse(puzzle);
+  delete puzzle?.timestamp;
+  return puzzle;
+}
+
+export function newPuzzle(forceNew = false) {
+  let p;
+  if (!forceNew) p = getLocalPuzzle();
+  else deletePuzzle(CREATOR);
+
+  const rows = 9,
+    cols = 10;
+  const grid = "1".repeat(rows * cols);
+  const response = "_".repeat(rows * cols);
+  console.log(p);
+
+  const puzzle = {
+    id: CREATOR,
+    state: p?.state || grid,
+    gridDimensions: p?.gridDimensions || [cols, rows],
+    arrows: p?.arrows || { d: [], r: [] },
+    dashes: p?.dashes || { d: [], r: [] },
+    wordStarts: p?.wordStarts || [],
+    response: p?.response || response,
   };
+
+  console.log("creator", puzzle);
+  return puzzle;
 }
