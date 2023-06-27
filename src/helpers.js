@@ -28,13 +28,15 @@ function getLocalPuzzle() {
   return puzzle;
 }
 
-export function newPuzzle(forceNew = false) {
+export function newPuzzle(options = {}) {
+  let { forceNew, x, y } = options;
+
   let p;
   if (!forceNew) p = getLocalPuzzle();
   else deletePuzzle(CREATOR);
 
-  const rows = 9,
-    cols = 10;
+  const rows = y,
+    cols = x;
   const grid = "1".repeat(rows * cols);
   const response = "_".repeat(rows * cols);
   console.log(p);

@@ -1,12 +1,19 @@
 <template>
   <div>
     <div
-      class="grid grid-rows-9 grid-cols-10 gap-x-px gap-y-px mx-auto box-border max-w-gamewidth max-h-[459px] w-full border border-slate-600 rounded overflow-hidden bg-slate-600 shadow-lg select-none"
+      class="grid gap-x-px gap-y-px mx-auto box-border max-w-gamewidth max-h-[459px] w-full border border-slate-600 rounded overflow-hidden bg-slate-600 shadow-lg select-none"
+      :class="{
+        'grid-rows-9 grid-cols-10': dimension.x === 10,
+        'grid-rows-8 grid-cols-9': dimension.x === 9,
+        'grid-rows-7 grid-cols-8': dimension.x === 8,
+        'grid-rows-6 grid-cols-7': dimension.x === 7,
+        'grid-rows-5 grid-cols-6': dimension.x === 6,
+      }"
     >
       <puzzle-grid-item
         v-for="([x, y, data], idx) in grid.grid"
         :key="idx"
-        @click="selectCell(`${x}-${y}`, idx)"
+        @click="selectCell(`${x}-${y}`, idx, true)"
         :class="[
           highlighted.includes(`${x}-${y}`) ? '!bg-gray-300' : '',
           selected === `${x}-${y}` ? '!bg-gray-400' : '',
@@ -70,7 +77,7 @@ const DIRECTION = {
   v: "down",
 };
 
-const response = computed({
+const cellResponse = computed({
   get() {
     return puzzle.response.split("");
   },
@@ -82,20 +89,33 @@ const response = computed({
   },
 });
 
+const backDirection = computed(() => {
+  return orientation.value === "v" ? DIRECTION.UP : DIRECTION.LEFT;
+});
+
 function notify(key) {
   lastKeyPress.value = key;
   if (!selected.value) return;
   if (key.match(/^[a-zåäö]$/)) {
     // grid.letters[selected.value] = key;
     //grid.grid[selectedCellGridIndex.value][2].letter = key;
-    response.value = key;
+    cellResponse.value = key;
     moveSelection(DIRECTION[orientation.value]);
   } else if (key in DIRECTION) moveSelection(DIRECTION[key]);
-  else if (key === " ") changeOrientation();
-  else if (key === "backspace") backspacePressed();
+  else if (key === " ") changeOrientation(true);
+  else if (key === "backspace") {
+    if (backspacePressed()) {
+      moveSelection(backDirection.value, false);
+      backspacePressed(true);
+    } else {
+      backspacePressed(true);
+    }
+    update("backspace");
+  }
 }
 
-function moveSelection(dir) {
+function moveSelection(dir, updateBoard = true) {
+  let newId;
   switch (dir) {
     case "up": {
       let i = selectedCellGridIndex.value - dimension.x;
@@ -109,7 +129,7 @@ function moveSelection(dir) {
           i = i - dimension.x;
           continue;
         }
-        selectCell(`${xx}-${yy}`);
+        newId = `${xx}-${yy}`;
         break;
       }
       break;
@@ -123,7 +143,7 @@ function moveSelection(dir) {
           i++;
           continue;
         }
-        selectCell(`${xx}-${yy}`);
+        newId = `${xx}-${yy}`;
         break;
       }
       break;
@@ -140,7 +160,7 @@ function moveSelection(dir) {
           i = i + dimension.x;
           continue;
         }
-        selectCell(`${xx}-${yy}`);
+        newId = `${xx}-${yy}`;
         break;
       }
       break;
@@ -153,28 +173,25 @@ function moveSelection(dir) {
           i--;
           continue;
         }
-        selectCell(`${xx}-${yy}`);
+        newId = `${xx}-${yy}`;
         break;
       }
       break;
     }
   }
+  if (newId) selectCell(newId);
+  if (updateBoard) update("moveSelection");
 }
 
-function backspacePressed(stop = false) {
-  let dir;
-  if (orientation.value === "v") dir = DIRECTION.UP;
-  else dir = DIRECTION.LEFT;
+function backspacePressed() {
   const i = selectedCellGridIndex.value;
-  if (i < 0) return;
+  if (i < 0) return false;
   const data = grid.grid[i][2];
   if (data.letter !== "_") {
-    response.value = "_";
-    //drawGrid("backspace pressed");
-  } else if (!stop) {
-    moveSelection(dir);
-    backspacePressed(true);
+    cellResponse.value = "_";
+    return false;
   }
+  return true;
 }
 
 const selectedCellCoordinates = computed(() => {
@@ -227,12 +244,13 @@ function hightlightCells() {
   //dir === "h" ? highlightHorizontal() : highlightVertical();
 }
 
-function changeOrientation() {
+function changeOrientation(updateBoard = false) {
   orientation.value = orientation.value === "h" ? "v" : "h";
   console.log("change dir: ", orientation.value);
+  if (updateBoard) update("changeOrientation");
 }
 
-function selectCell(cellId, index = -1) {
+function selectCell(cellId = selected.value, index = -1, updateBoard = false) {
   if (index > -1) emit("clicked", index);
 
   if (index > -1 && grid.grid[index][2].state !== 1) return false;
@@ -240,6 +258,7 @@ function selectCell(cellId, index = -1) {
   if (selected.value === cellId) changeOrientation();
   selected.value = cellId;
   highlighted.length = 0;
+  if (updateBoard) update("selectCell");
   return true;
 }
 
@@ -297,22 +316,20 @@ function _get_cell_data(i) {
   return data;
 }
 
-watch(
-  [selected, orientation, response],
-  () => {
-    hightlightCells();
-    if (selected.value.length < 1) {
-      return;
-    }
-    emit("selectCell", selectedCellGridIndex.value);
-    drawGrid("select watcher");
-  },
-  {
-    onTrigger(e) {
-      //console.log("sel", e);
-    },
+function update(source = "update") {
+  hightlightCells();
+  if (selected.value.length < 1) {
+    return;
   }
-);
+  emit("selectCell", selectedCellGridIndex.value);
+  drawGrid(source);
+}
+
+watch([selected, orientation, cellResponse], () => {}, {
+  onTrigger(e) {
+    //console.log("sel", e);
+  },
+});
 
 const puzzleUnwatch = watch(
   () => [puzzle.arrows, puzzle.dashes, puzzle.state],

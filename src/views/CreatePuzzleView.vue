@@ -11,8 +11,8 @@
       <div class="bg-red-100">
         <div class="flex flex-col">
           <CreateModeButton @click="clearBoard" class="bg-red-300 mb-10"
-            >clear</CreateModeButton
-          >
+            >clear
+          </CreateModeButton>
           <CreateModeButton
             v-for="m in modes"
             :key="m"
@@ -20,6 +20,17 @@
             @click="setMode(m)"
             >{{ m }}
           </CreateModeButton>
+          <CreateModeButton
+            @click="resizeBoard(1)"
+            class="bg-red-300 mt-10 border-b"
+            >+
+          </CreateModeButton>
+          <CreateModeButton
+            @click="resizeBoard(-1)"
+            class="bg-red-300 mb-10 text-xl"
+            >-
+          </CreateModeButton>
+          {{ puzzleSize }}
         </div>
       </div>
       <div class="max-w-[300px] break-words">{{}}</div>
@@ -36,21 +47,40 @@ import { newPuzzle } from "@/helpers";
 import KeyboardGrid from "@/components/KeyboardGrid.vue";
 import CreateModeButton from "@/components/buttons/CreateModeButton.vue";
 import PuzzleGrid from "@/components/PuzzleGrid.vue";
+
 const current = ref("");
 const pdata = reactive({});
 const clearKey = ref(Symbol());
 
 const modes = reactive(["input", "dark", "arrow", "dash", "divider"]);
 const mode = ref("input");
+
+const puzzleSize = reactive({ x: 10, y: 9 });
+
 onMounted(() => {
-  pdata.puzzle = newPuzzle();
+  pdata.puzzle = newPuzzle(puzzleSize);
+  const { gridDimensions } = pdata.puzzle;
+  console.log(gridDimensions);
+  puzzleSize.x = gridDimensions[0];
+  puzzleSize.y = gridDimensions[1];
   //console.log(pdata.puzzle);
 });
+
+function resizeBoard(incr) {
+  if (incr > 0 && puzzleSize.x < 10 && puzzleSize.y < 9) {
+    puzzleSize.x = puzzleSize.x < 10 ? puzzleSize.x + 1 : puzzleSize.x;
+    puzzleSize.y = puzzleSize.y < 9 ? puzzleSize.y + 1 : puzzleSize.y;
+  } else if (incr < 0 && puzzleSize.x > 6 && puzzleSize.y > 5) {
+    puzzleSize.x = puzzleSize.x > 6 ? puzzleSize.x - 1 : puzzleSize.x;
+    puzzleSize.y = puzzleSize.y > 5 ? puzzleSize.y - 1 : puzzleSize.y;
+  }
+}
 
 function setMode(m) {
   mode.value = m;
   clearKey.value = Symbol();
 }
+
 const actions = {
   [modes[0]]: () => {
     console.log("toggleInput");
@@ -114,6 +144,7 @@ function toggleArrow() {
   const arr = { d: d, r: r };
   pdata.puzzle.arrows = arr;
 }
+
 function clearArrow() {
   const down = [...pdata.puzzle.arrows.d];
   const right = [...pdata.puzzle.arrows.r];
@@ -126,6 +157,7 @@ function clearArrow() {
   }
   pdata.puzzle.arrows = { d: down, r: right };
 }
+
 function clearDash() {
   console.log("clearDash");
   const c = current.value;
@@ -170,9 +202,12 @@ function clearCurrentCell() {
 
   //let resp  pdata.puzzle.response
 }
-function clearBoard() {
+
+function clearBoard(force = false) {
   if (confirm("Återställer spelplan?")) {
-    pdata.puzzle = newPuzzle(true);
+    puzzleSize.x = 10;
+    puzzleSize.y = 9;
+    pdata.puzzle = newPuzzle({ forceNew: true, ...puzzleSize });
     clearKey.value = Symbol();
     // current.value = -1;
   }

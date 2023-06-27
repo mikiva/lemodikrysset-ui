@@ -11,6 +11,7 @@
       <div class="flex gap-4">
         <!--RouterLink to="/register">Register</RouterLink-->
         <RouterLink v-if="userId" to="/logout">Sign out</RouterLink>
+        <RouterLink v-else to="/login">Logga in</RouterLink>
         <!--RouterLink v-else to="/login">Sign in</RouterLink-->
         <RouterLink to="/play">Spela</RouterLink>
         <RouterLink to="/profile" v-if="userId"
