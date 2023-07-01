@@ -10,7 +10,7 @@
       :class="[loginStatus ? 'border-slate-400' : 'border-red-400']"
       :type="isPassword ? 'password' : 'text'"
       :value="modelValue"
-      auto-complete="off"
+      autocomplete="off"
       @input="$emit('update:modelValue', $event.target.value)"
     />
     <span

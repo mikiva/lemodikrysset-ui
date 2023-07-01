@@ -21,16 +21,20 @@
             >{{ m }}
           </CreateModeButton>
           <CreateModeButton
+            v-if="false"
             @click="resizeBoard(1)"
             class="bg-red-300 mt-10 border-b"
             >+
           </CreateModeButton>
           <CreateModeButton
+            v-if="false"
             @click="resizeBoard(-1)"
             class="bg-red-300 mb-10 text-xl"
             >-
           </CreateModeButton>
-          {{ puzzleSize }}
+          <CreateModeButton class="mt-10" @click="createPuzzle"
+            >create</CreateModeButton
+          >
         </div>
       </div>
       <div class="max-w-[300px] break-words">{{}}</div>
@@ -219,6 +223,14 @@ function clickedCell(cell) {
     actions[mode.value]();
   }
   if (mode.value !== "input") clearKey.value = Symbol();
+}
+
+async function createPuzzle() {
+  console.log(pdata.puzzle);
+  const result = await fetch("/api/v1/play/puzzle/create", {
+    method: "POST",
+    body: JSON.stringify(pdata.puzzle),
+  });
 }
 
 watch(mode, (mod) => {

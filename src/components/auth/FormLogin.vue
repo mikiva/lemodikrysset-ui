@@ -1,46 +1,22 @@
 <template>
-  <form
-    @submit.prevent="login"
-    class="grid grid-cols-1 gap-3 text-center"
-    :class="{ 'animate-shake': !loginStatus }"
-  >
-    <input-field
-      input-id="login-email"
-      type=" text"
-      v-model="email"
-      icon="person"
-      labelText="Epost"
-    >
+  <form @submit.prevent="login" class="grid grid-cols-1 gap-3 text-center" :class="{ 'animate-shake': !loginStatus }">
+    <input-field input-id="login-email" type=" text" v-model="email" icon="person" labelText="Epostadress">
       <span class="ml-3 text-red-500" v-if="errors.email">{{
         errors.email
       }}</span>
     </input-field>
-    <input-field
-      input-id="login-password"
-      icon="lock"
-      v-model="password"
-      is-password
-      labelText="Lösenord"
-    ></input-field>
+    <input-field input-id="login-password" icon="lock" v-model="password" is-password labelText="Lösenord"></input-field>
     <div class="flex flex-col">
-      <span
-        v-if="!loginStatus && errors.credentials"
-        class="p-4 bg-red-200/50 border-red-400/50 border text-slate-800 rounded text-sm"
-        >{{ errors.credentials }}</span
-      >
+      <span v-if="!loginStatus && errors.credentials"
+        class="p-4 bg-red-200/50 border-red-400/50 border text-slate-800 rounded text-sm">{{ errors.credentials }}</span>
     </div>
-    <button
-      class="bg-blue-300 rounded border shadow-md disabled:bg-blue-300/30 disabled:text-slate-400/50"
-      type="submit"
-      value="Login"
-      :disabled="tryLogin"
-    >
+    <button class="bg-blue-300 py-1 rounded border shadow-md disabled:bg-blue-300/30 disabled:text-slate-400/50"
+      type="submit" value="Login" :disabled="tryLogin || !(email && password)">
       <span v-if="tryLogin">LOGGAR IN...</span>
       <span v-else>LOGGA IN</span>
     </button>
-    <div class="text-slate-500 mt-4">
-      Har du inget konto?
-      <router-link class="underline" to="/register">Registrera</router-link>
+    <div class="text-slate-500 mb-4 text-sm">
+      <router-link class="underline" :to="{ name: 'LogInPasswordResetView' }">Glöm lösenord?</router-link>
     </div>
   </form>
 </template>

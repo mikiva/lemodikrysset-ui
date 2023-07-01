@@ -24,6 +24,7 @@ import {
 
 import { addKeyPressObserver } from "@/services/inputservice";
 import { getPuzzle } from "@/storage";
+import { init } from "supertokens-web-js";
 
 const route = useRoute();
 const pdata = reactive({});
@@ -40,17 +41,23 @@ onMounted(async () => {
   );
 
   const puzzle = await response.json();
-
-  pdata.puzzle = puzzle;
+  console.log(puzzle);
+  pdata.puzzle = { ...puzzle };
   const localPuzzle = getPuzzle(puzzle.id);
   let userInput;
-  if (localPuzzle) userInput = JSON.parse(localPuzzle).response;
-  if (userInput) pdata.puzzle.response = userInput;
-  else {
-    pdata.puzzle.response = "_".repeat(
+  if (localPuzzle) {
+    userInput = JSON.parse(localPuzzle).response;
+  }
+  if (userInput) {
+    pdata.puzzle.response = userInput;
+  } else {
+    const initResponse = "_".repeat(
       puzzle.gridDimensions.reduce((a, b) => a * b, 1)
     );
+    console.log(initResponse);
+    pdata.puzzle.response = initResponse;
   }
+  console.log(pdata.puzzle);
   console.log("mount listener");
 
   //window.addEventListener("keydown", handleKeyPress);

@@ -4,13 +4,14 @@ import LogInView from "../views/LogInView.vue";
 import RegisterView from "../views/RegisterView.vue";
 import Session from "supertokens-web-js/recipe/session";
 import ProfileView from "../views/ProfileView.vue";
+import VerifyEmailView from "@/views/VerifyEmailView.vue";
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
     {
       path: "/",
-      name: "home",
+      name: "IndexView",
       component: HomeView,
     },
     {
@@ -37,26 +38,40 @@ const router = createRouter({
     },
     {
       path: "/register",
-      name: "register",
+      name: "RegisterView",
       component: RegisterView,
       beforeEnter: leaveIfLoggedIn,
     },
     {
+      path: "/auth/verify-email",
+      name: "VerifyEmailView",
+      component: () => import("@/views/VerifyEmailView.vue"),
+    },
+    {
       path: "/login",
-      name: "login",
+      name: "LogInView",
       component: LogInView,
       beforeEnter: leaveIfLoggedIn,
     },
     {
+      path: "/auth/reset-password",
+      name: "LogInPasswordResetView",
+      component: () => import("@/views/LogInPasswordResetView.vue")
+    },
+    {
       name: "logout",
       path: "/logout",
-      beforeEnter: async () => {
+      component: () => import("@/views/LogOutView.vue"),
+      beforeEnter: async (to, from, next) => {
         if (await Session.doesSessionExist()) {
-          await Session.signOut();
+          next();
+        } else {
+          next(from);
         }
-        window.location.href = "/login";
-      },
+
+      }
     },
+
     {
       path: "/about",
       name: "about",
@@ -65,6 +80,12 @@ const router = createRouter({
       // which is lazy-loaded when the route is visited.
       component: () => import("../views/AboutView.vue"),
     },
+    {
+      path: "/:catchAll(.*)",
+      name: "NotFoundView",
+      component: () => import("@/views/PageNotFoundView.vue")
+
+    }
   ],
 });
 

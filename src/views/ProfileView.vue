@@ -1,9 +1,21 @@
 <template>
   <div>
-    <h1>Logged in:</h1>
+    <h1 class="font-bold">Inloggad som</h1>
     <p>{{ userId }}</p>
-    <p>
-      <RouterLink :to="{ name: 'create' }">Nytt kryss</RouterLink>
+    <hr>
+    <p class="py-3">
+      <RouterLink :to="{ name: 'create' }" class="underline color-slate-500">Nytt kryss</RouterLink>
+    </p>
+    <hr>
+    <h1 class="font-bold">Inställningar</h1>
+    <p class="pt-3 pb-2">
+      TODO: Byta lösenord
+    </p>
+    <p class="py-2">
+      TODO: Hantera kryss
+    </p>
+    <p class="py-2">
+      TODO: Hantera kryss
     </p>
   </div>
 </template>
