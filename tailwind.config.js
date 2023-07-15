@@ -58,7 +58,7 @@ module.exports = {
         pop: "pop 0.1s",
         shake: "shake 0.5s",
       },
-      transitionProperty: {
+      transitionperty: {
         cell: "background-color",
       },
     },

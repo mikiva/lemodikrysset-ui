@@ -27,9 +27,8 @@ const frontPuzzle = reactive({
     pname: "FRONT",
     state: state,
     id: "Lemodikrysset",
-    wordStarts: [],
+    wordStarts: [11],
     arrows: { d: [14], r: [64] },
-    viewSolution: true,
     response: response,
   },
 });

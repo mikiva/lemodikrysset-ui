@@ -3,7 +3,7 @@
     <div v-if="puzzleFound" class="flex flex-col h-full justify-between">
       <div class="flex flex-col gap-4">
         <p class="text-center">
-          {{ pdata.puzzle.pname }} - {{ pdata.puzzle.id }}
+          {{ pdata.puzzle.name }} - {{ pdata.puzzle.publicId }}
         </p>
         <PuzzleGrid class="p-2"></PuzzleGrid>
       </div>
@@ -24,12 +24,11 @@ import {
 
 import { addKeyPressObserver } from "@/services/inputservice";
 import { getPuzzle } from "@/storage";
-import { init } from "supertokens-web-js";
 
 const route = useRoute();
 const pdata = reactive({});
 const puzzleFound = computed(() => {
-  return pdata?.puzzle?.id;
+  return pdata?.puzzle?.publicId;
 });
 
 onMounted(async () => {
@@ -43,7 +42,7 @@ onMounted(async () => {
   const puzzle = await response.json();
   console.log(puzzle);
   pdata.puzzle = { ...puzzle };
-  const localPuzzle = getPuzzle(puzzle.id);
+  const localPuzzle = getPuzzle(puzzle.publicId);
   let userInput;
   if (localPuzzle) {
     userInput = JSON.parse(localPuzzle).response;
