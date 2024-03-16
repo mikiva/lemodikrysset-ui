@@ -1,6 +1,6 @@
 <template>
   <div
-    class="w-full h-full z-1 relative transition-cell duration-100 leading-none"
+    class="w-full h-full z-1 relative transition-cell duration-100 leading-none text-[min(8vmin,_2rem)]"
     :class="[cell.state === 0 ? 'bg-slate-600' : 'bg-white']"
     :style="cellStyle"
     ref="cellRef"
@@ -60,6 +60,7 @@ const cellTextClasses = computed(() => {
 watch(currentScreen, setCellSize);
 
 function setCellSize() {
+  return
   let c = cellRef.value;
   let letter = cellLetter.value;
   c.style.height = c.clientWidth + "px";

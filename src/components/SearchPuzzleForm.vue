@@ -6,18 +6,19 @@
       </div>
       <div class="flex m-auto max-w-xl w-full rounded-lg overflow-hidden border-2 border-slate-400">
         <PuzzleGridItem v-for="(c, idx) in codeLength" :key="c" :cell="{ state: 1, letter: code[idx], start: c }"
-          class="w-15 col-span-2 transition-all" :custom-text="'boardmd:text-5xl boardsm:text-3xl text-2xl'" :class="[
-            code.length === c - 1 ? 'animate-pulse !bg-slate-400' : '',
-            { 'border-r-slate-400 border-r': c < codeLength },
-            { 'text-red-400 !border-red-400 !bg-red-100': notFoundEffect },
-          ]">
+          class="w-15 col-span-2 transition-all  aspect-square"
+          :custom-text="'boardmd:text-5xl boardsm:text-3xl text-2xl'" :class="[
+    code.length === c - 1 ? 'animate-pulse !bg-slate-400' : '',
+    { 'border-r-slate-400 border-r': c < codeLength },
+    { 'text-red-400 !border-red-400 !bg-red-100': notFoundEffect },
+  ]">
         </PuzzleGridItem>
       </div>
       <button ref="playButton"
         class="m-auto w-1/2 rounded border mt-2 text-2xl disabled:bg-slate-200 bg-slate-400 shadow-lg disabled:shadow-inherit disabled:text-gray-300 disabled:border-inherit p-2 transition-colors"
         :disabled="code.length < codeLength" @click="submitCode" :class="{
-          'bg-red-500/25 text-red-500': notFoundEffect,
-        }">
+    'bg-red-500/25 text-red-500': notFoundEffect,
+  }">
         Spela
       </button>
       <button @click="code = 'abcdf'" class="underline font-normal">Exempel</button>

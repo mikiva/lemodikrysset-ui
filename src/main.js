@@ -7,6 +7,9 @@ import "material-icons/iconfont/material-icons.css";
 
 const app = createApp(App);
 
+
+
+
 initAuth();
 app.use(router);
 

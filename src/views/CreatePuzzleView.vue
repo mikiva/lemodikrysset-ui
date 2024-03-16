@@ -1,40 +1,19 @@
 <template>
   <div class="flex flex-col justify-between h-full">
-    <div class="relative flex gap-4 h-full">
-      <PuzzleGrid
-        @clicked="clickedCell"
-        :edit-mode="mode !== 'input'"
-        class="max-w-gamewidth w-full inline-block"
-        :key="clearKey"
-        v-if="pdata.puzzle"
-      ></PuzzleGrid>
+    <div class="flex md:flex-row gap-4 flex-col">
+      <PuzzleGrid @clicked="clickedCell" :edit-mode="mode !== 'input'" class="p-2" :key="clearKey" v-if="pdata.puzzle">
+      </PuzzleGrid>
       <div class="bg-red-100">
-        <div class="flex flex-col">
-          <CreateModeButton @click="clearBoard" class="bg-red-300 mb-10"
-            >clear
+        <div class="flex md:flex-col items-center justify-center md:justify-normal md:items-stretch">
+          <CreateModeButton @click="clearBoard" class="bg-red-300 md:mb-10">clear
           </CreateModeButton>
-          <CreateModeButton
-            v-for="m in modes"
-            :key="m"
-            :is-active="mode === m"
-            @click="setMode(m)"
-            >{{ m }}
+          <CreateModeButton v-for="m in modes" :key="m" :is-active="mode === m" @click="setMode(m)">{{ m }}
           </CreateModeButton>
-          <CreateModeButton
-            v-if="false"
-            @click="resizeBoard(1)"
-            class="bg-red-300 mt-10 border-b"
-            >+
+          <CreateModeButton v-if="false" @click="resizeBoard(1)" class="bg-red-300 mt-10 border-b">+
           </CreateModeButton>
-          <CreateModeButton
-            v-if="false"
-            @click="resizeBoard(-1)"
-            class="bg-red-300 mb-10 text-xl"
-            >-
+          <CreateModeButton v-if="false" @click="resizeBoard(-1)" class="bg-red-300 mb-10 text-xl">-
           </CreateModeButton>
-          <CreateModeButton class="mt-10" @click="createPuzzle"
-            >create</CreateModeButton
-          >
+          <CreateModeButton class="md:mt-10" @click="createPuzzle">create</CreateModeButton>
         </div>
       </div>
       <div class="max-w-[300px] break-words">{{}}</div>
@@ -82,7 +61,8 @@ function resizeBoard(incr) {
 
 function setMode(m) {
   mode.value = m;
-  clearKey.value = Symbol();
+
+  //clearKey.value = Symbol();
 }
 
 const actions = {
@@ -219,10 +199,12 @@ function clearBoard(force = false) {
 
 function clickedCell(cell) {
   current.value = cell;
+
   if (cell > -1) {
     actions[mode.value]();
   }
-  if (mode.value !== "input") clearKey.value = Symbol();
+
+  //if (mode.value !== "input") clearKey.value = Symbol();
 }
 
 async function createPuzzle() {

@@ -12,6 +12,7 @@ const SuperTokensConfig = {
   },
   recipeList: [
     EmailVerification.init({
+
       mode: "REQUIRED",
       getRedirectionURL: async (context) => {
         console.log("REDIRECT", context);

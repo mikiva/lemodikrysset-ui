@@ -22,7 +22,7 @@ module.exports = {
         keyboard: "repeat(22, minmax(0, 1fr))",
       },
       maxWidth: {
-        gamewidth: "500px",
+        gamewidth: "499px",
         appWidth: "1070px",
       },
       backgroundColor: {

@@ -1,32 +1,25 @@
 <template>
-  <div>
+  <div class="max-w-gamewidth w-full mx-auto">
     <div
-      class="grid gap-x-px gap-y-px mx-auto box-border max-w-gamewidth max-h-[459px] w-full border border-slate-600 rounded overflow-hidden bg-slate-600 shadow-lg select-none"
+      class="grid gap-x-px gap-y-px mx-auto box-bordermax-h-[449px] w-full border border-slate-600 rounded-sm overflow-hidden bg-slate-600 shadow-lg select-none"
       :class="{
-        'grid-rows-9 grid-cols-10': dimension.x === 10,
-        'grid-rows-8 grid-cols-9': dimension.x === 9,
-        'grid-rows-7 grid-cols-8': dimension.x === 8,
-        'grid-rows-6 grid-cols-7': dimension.x === 7,
-        'grid-rows-5 grid-cols-6': dimension.x === 6,
-      }"
-    >
-      <puzzle-grid-item
-        v-for="([x, y, data], idx) in grid.grid"
-        :key="idx"
-        @click="selectCell(`${x}-${y}`, idx, true)"
+        'grid-rows-9 grid-cols-10 aspect-[10/9]': dimension.x === 10,
+        'grid-rows-8 grid-cols-9 aspect-[9/8]': dimension.x === 9,
+        'grid-rows-7 grid-cols-8 aspect-[8/7]': dimension.x === 8,
+        'grid-rows-6 grid-cols-7 aspect-[7/6]': dimension.x === 7,
+        'grid-rows-5 grid-cols-6 aspect-[6/5]': dimension.x === 6,
+      }">
+      <puzzle-grid-item v-for="([x, y, data], idx) in grid.grid" :key="idx" @click="selectCell(`${x}-${y}`, idx, true)"
         :class="[
-          highlighted.includes(`${x}-${y}`) ? '!bg-gray-300' : '',
-          selected === `${x}-${y}` ? '!bg-gray-400' : '',
-        ]"
-        :cell="data"
-      >
+        highlighted.includes(`${x}-${y}`) ? '!bg-gray-300' : '',
+        selected === `${x}-${y}` ? '!bg-gray-400' : '',
+      ]" :cell="data">
       </puzzle-grid-item>
     </div>
 
-    <p>Selected cell: {{ selectedCellCoordinates || "none" }}</p>
+    <!--p>Selected cell: {{ selectedCellCoordinates || "none" }}</p>
     <p>Selected cell index: {{ selectedCellGridIndex || "none" }}</p>
-    <p>Direction: {{ orientation === "h" ? "Vågrätt" : "Lodrätt" }}</p>
-    <p>Last key press: [{{ lastKeyPress }}]</p>
+    <p>Last key press: [{{ lastKeyPress }}]</p-->
   </div>
 </template>
 
@@ -244,6 +237,12 @@ function hightlightCells() {
   //dir === "h" ? highlightHorizontal() : highlightVertical();
 }
 
+function unSelectAll() {
+  console.log("unselect all");
+  highlighted.length = 0;
+
+}
+
 function changeOrientation(updateBoard = false) {
   orientation.value = orientation.value === "h" ? "v" : "h";
   console.log("change dir: ", orientation.value);
@@ -317,6 +316,11 @@ function _get_cell_data(i) {
 }
 
 function update(source = "update") {
+
+  if (editMode.value) {
+    unSelectAll()
+    return;
+  };
   hightlightCells();
   if (selected.value.length < 1) {
     return;
@@ -325,17 +329,18 @@ function update(source = "update") {
   drawGrid(source);
 }
 
-watch([selected, orientation, cellResponse], () => {}, {
+watch([selected, orientation, cellResponse], () => { }, {
   onTrigger(e) {
     //console.log("sel", e);
   },
 });
 
 const puzzleUnwatch = watch(
-  () => [puzzle.arrows, puzzle.dashes, puzzle.state],
+  () => [puzzle.arrows, puzzle.dashes, puzzle.state, editMode.value],
   () => {
     if (editMode.value) {
       selected.value = "";
+      unSelectAll();
       drawGrid("puzzlewatch");
     } else hightlightCells();
   },

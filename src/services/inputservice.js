@@ -16,11 +16,12 @@ export function removeKeyPressObserver(observer) {
   //});
 }
 export function handleKeyPress(key) {
+  console.log(key);
   const k = key.key.toLowerCase();
   if (
     k.match(
       /^([a-zåäö]|arrowup|arrowdown|arrowleft|arrowright|\s|backspace|enter)$/
-    )
+    ) && (!key?.ctrlKey)
   ) {
     observers.forEach((notify) => {
       notify(k);

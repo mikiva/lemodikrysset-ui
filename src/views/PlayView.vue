@@ -24,19 +24,21 @@ import {
 
 import { addKeyPressObserver } from "@/services/inputservice";
 import { getPuzzle } from "@/storage";
-
+import http from "@/services/httpservice"
 const route = useRoute();
 const pdata = reactive({});
 const puzzleFound = computed(() => {
   return pdata?.puzzle?.publicId;
 });
 
-onMounted(async () => {
-  const response = await fetch(
+
+async function initPuzzle() {
+
+  const response = await http.get(
     "/api/v1/play/puzzle?" +
-      new URLSearchParams({
-        p: route.params.puzzleid,
-      })
+    new URLSearchParams({
+      p: route.params.puzzleid,
+    })
   );
 
   const puzzle = await response.json();
@@ -58,7 +60,11 @@ onMounted(async () => {
   }
   console.log(pdata.puzzle);
   console.log("mount listener");
+}
 
+
+onMounted(() => {
+  initPuzzle()
   //window.addEventListener("keydown", handleKeyPress);
 });
 
